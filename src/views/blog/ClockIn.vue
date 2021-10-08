@@ -1,105 +1,107 @@
 <template>
 
   <div id="app">
-    <el-container class="me-view-container">
+<!--    <el-container class="me-view-container">-->
 
-      <!--        <div>
-                  <span>弹出框</span>
-                  <input type="text" @click="openByDrop($event)" v-model="calendar3.display" readonly>
-                  <input type="text" @click="openMultiByDrop($event)" v-model="calendar5.display" readonly>
-                  <input type="text" @click="openByDialog" :value="calendar4.display" readonly>
-              </div>-->
-      <el-row :gutter="2">
+    <el-row :gutter="10">
+      <el-col :span="3">
+        <span style="margin-top: 200px">日历</span>
+      </el-col>
+    </el-row>
 
-        <el-col :span="20">
+    <el-row :gutter="10">
+      <el-col :md="7">
+          <calendar
+            style="border-radius: 20px"
+            ref="calendar3"
+            :events="calendar3.events"
+            :lunar="calendar3.lunar"
+            :value="calendar3.value"
+            :begin="calendar3.begin"
+            :end="calendar3.end"
+            :weeks="calendar3.weeks"
+            :months="calendar3.months"
+            @select=""
+            @selectMonth="calendar3.selectMonth"
+            @selectYear="calendar3.selectYear"
+          >
+          </calendar>
+          <!--        <button @click="changeEvents">异步更新Price</button>-->
+          <!--        <button @click="calendar3.value=[2018,1,Math.floor(Math.random()*30+1)]">动态设置日期</button>-->
+          <button @click="$refs.calendar3.setToday();isSelected()" class="center">返回今天</button>
+      </el-col>
+
+        <el-col :md="14">
           <div>
-            <span>日历</span>
-            <calendar
-              ref="calendar3"
-              :events="calendar3.events"
-              :lunar="calendar3.lunar"
-              :value="calendar3.value"
-              :begin="calendar3.begin"
-              :end="calendar3.end"
-              :weeks="calendar3.weeks"
-              :months="calendar3.months"
-              @select=""
-              @selectMonth="calendar3.selectMonth"
-              @selectYear="calendar3.selectYear"
-            >
-            </calendar>
-    <!--        <button @click="changeEvents">异步更新Price</button>-->
-    <!--        <button @click="calendar3.value=[2018,1,Math.floor(Math.random()*30+1)]">动态设置日期</button>-->
-            <button @click="$refs.calendar3.setToday();isSelected()" class="center" >返回今天</button>
+            <el-input
+              type="textarea"
+              :autosize="{ minRows: 2}"
+              placeholder="打卡内容..."
+              class="me-view-comment-text"
+              v-model="comment.content"
+              resize="none">
+            </el-input>
           </div>
         </el-col>
 
-
-      <!--        <div>
-                  <span>多选/农历</span>
-                  <calendar :range="calendar2.range" :lunar="calendar2.lunar" :value="calendar2.value" :begin="calendar2.begin" :end="calendar2.end" @select="calendar2.select"></calendar>
-              </div>-->
-<!--
-          <transition name="fade">
-            <div class="calendar-dropdown" :style="{'left':calendar3.left+'px','top':calendar3.top+'px'}" v-if="calendar3.show">
-              <calendar :zero="calendar3.zero" :lunar="calendar3.lunar" :value="calendar3.value" :begin="calendar3.begin" :end="calendar3.end" @select="calendar3.select"></calendar>
-            </div>
-          </transition>
--->
-<!--          <transition name="fade">
-            <div class="calendar-dropdown" :style="{'left':calendar5.left+'px','top':calendar5.top+'px'}" v-if="calendar5.show">
-              <calendar :zero="calendar5.zero" :disabled="calendar5.disabled" :lunar="calendar5.lunar" :value="calendar5.value" :multi="calendar5.multi" @select="calendar5.select"></calendar>
-            </div>
-          </transition>-->
-<!--          <transition name="fade">
-            <div class="calendar-dialog" v-if="calendar4.show">
-              <div class="calendar-dialog-mask" @click="closeByDialog"></div>
-
-              <div class="calendar-dialog-body">
-                <calendar :range="calendar4.range" :zero="calendar4.zero" :lunar="calendar4.lunar" :value="calendar4.value"  @select="calendar4.select"></calendar>
-              </div>
-
-            </div>
-          </transition>-->
-
-        <el-col :span="20" >
-            <div>
-              <el-input
-                type="textarea"
-                :autosize="{ minRows: 2}"
-                placeholder="打卡内容..."
-                class="me-view-comment-text"
-                v-model="comment.content"
-                resize="none">
-              </el-input>
-            </div>
+        <el-col :md="3">
+            <el-button type="text" @click="publishComment()" class="clickInButton">打卡</el-button>
         </el-col>
 
+      <commment-item
+        v-for="(c,index) in comments"
+        :comment="c"
+        :articleId="article.id"
+        :index="index"
+        :rootCommentCounts="comments.length"
+        @commentCountsIncrement="commentCountsIncrement"
+        :key="c.id">
+      </commment-item>
+      <h1>111111</h1>
       </el-row>
-    </el-container>
+
   </div>
 
 </template>
 
 <script>
-import {getCommentsByArticle, publishComment} from '@/api/comment'
+import CommmentItem from '@/components/comment/CommentItem'
+import {getCommentsByArticle, publishComment} from '@/api/clockin'
 import calendar from './calendar.vue'
 
 export default {
   name: "ClockIn",
   components: {
-    calendar
+    calendar,
+    CommmentItem
   },
-  data(){
+  data() {
     return {
-      isSelecteds:'ds',
-      today:[],
+      isSelecteds: 'ds',
+      today: [],
       comments: [],
       comment: {
         article: {},
         content: ''
       },
-      calendar1:{
+      article: {
+        id: '',
+        title: '',
+        commentCounts: 0,
+        viewCounts: 0,
+        summary: '',
+        author: {},
+        tags: [],
+        category:{},
+        createDate: '',
+        editor: {
+          value: '',
+          toolbarsFlag: false,
+          subfield: false,
+          defaultOpen: 'preview'
+        }
+      },
+      /*calendar1:{
         value:[2017,7,20], //默认日期
         // lunar:true, //显示农历
         weeks:['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
@@ -117,123 +119,66 @@ export default {
         selectYear(year){
         },
         timestamp:Date.now()
-      },
-      calendar2:{
-        range:true,
-        value:[[2017,12,1],[2019,2,16]], //默认日期
-        lunar:true, //显示农历
-        begin:[2017,2,16], //可选开始日期
-        end:[2019,2,16], //可选结束日期
-        select(begin,end){
-          // console.log(begin.toString(),end.toString());
-        }
-      },
+      },*/
 
-      calendar3:{
-        display:"2021/10/1",
-        show:false,
-        zero:true,
-        value:this.today, //显示当前日期
-        lunar:true, //显示农历
-        select:(value)=>{
-          this.calendar3.show=false;
-          this.calendar3.value=value;
-          this.calendar3.display=value.join("/");
+      calendar3: {
+        display: "2021/10/1",
+        show: false,
+        zero: true,
+        value: this.today, //显示当前日期
+        lunar: true, //显示农历
+        select: (value) => {
+          this.calendar3.show = false;
+          this.calendar3.value = value;
+          this.calendar3.display = value.join("/");
         },
-        selectMonth(month,year){
+        selectMonth(month, year) {
         },
-        selectYear(year){
+        selectYear(year) {
         },
-        timestamp:Date.now()
-      },
-
-      calendar4:{
-        display:"2018/02/16 ~ 2019/02/16",
-        show:false,
-        range:true,
-        zero:true,
-        value:[[2018,2,16],[2019,2,16]], //默认日期
-        lunar:true, //显示农历
-        select:(begin,end)=>{
-          console.log(begin,end)
-          this.calendar4.show=false;
-          this.calendar4.value=[begin,end];
-          this.calendar4.display=begin.join("/")+" ~ "+end.join("/");
-        }
-      },
-      // 多选
-      calendar5:{
-        display:"2017/11/2,2017/12/2",
-        multi:true,
-        show:false,
-        zero:true,
-        value:[[2017,11,1],[2017,11,2]], //默认日期
-        disabled:[[2017,12,24],[2017,12,25]], //默认日期
-        lunar:true, //显示农历
-        select:(value)=>{
-
-          let displayValue=[]
-          value.forEach(v=>{
-            displayValue.push(v[0]+"/"+(v[1])+"/"+v[2])
-          })
-          console.log(displayValue);
-          this.calendar5.display=displayValue.join(",");
-          // this.calendar5.show=false;
-          this.calendar5.value=value;
-
-        }
-      },
+        timestamp: Date.now()
+      }
     }
   },
-  methods:{
+  methods: {
     created: function () {
       let yy = new Date().getFullYear();
-      let mm = new Date().getMonth()+1;
+      let mm = new Date().getMonth() + 1;
       let dd = new Date().getDate();
-      this.today=[yy,mm,dd];
+      this.today = [yy, mm, dd];
     },
     isSelected() {
-      this.isSelecteds='selected';
+      this.isSelecteds = 'selected';
     },
 
-    openByDrop(e){
-      this.calendar3.show=true;
-      this.calendar3.left=e.target.offsetLeft+19;
-      this.calendar3.top=e.target.offsetTop+70;
+    closeByDialog() {
+      this.calendar4.show = false;
+    },
 
-      e.stopPropagation();
-      window.setTimeout(()=>{
-        document.addEventListener("click",(e)=>{
-          this.calendar3.show=false;
-          document.removeEventListener("click",()=>{},false);
-        },false);
-      },1000)
-    },
-    openByDialog(){
-      this.calendar4.show=true;
-    },
-    closeByDialog(){
-      this.calendar4.show=false;
-    },
-    openMultiByDrop(e){
-      this.calendar5.show=true;
-      this.calendar5.left=e.target.offsetLeft+19;
-      this.calendar5.top=e.target.offsetTop+70;
-      e.stopPropagation();
-      window.setTimeout(()=>{
-        document.addEventListener("click",(e)=>{
-          this.calendar5.show=false;
-          document.removeEventListener("click",()=>{},false);
-        },false);
-      },1000)
-    },
-    // changeEvents(){
-    //   this.calendar1.events={
-    //     '2017-7-20':'$'+(Math.random()*1000>>0),
-    //     '2017-7-21':'$'+(Math.random()*1000>>0),
-    //     '2017-7-22':'$'+(Math.random()*1000>>0),
-    //   }
-    // }
+    publishComment() {
+      let that = this
+      if (!that.comment.content) {
+        return;
+      }
+      that.comment.article.id = that.article.id
+      let parms = {articleId: that.article.id, content: that.comment.content}
+      publishComment(parms, this.$store.state.token).then(data => {
+        if (data.success) {
+          that.$message({type: 'success', message: '打卡成功', showClose: true})
+          that.comment.content = ''
+          that.comments.unshift(data.data)
+          that.commentCountsIncrement()
+
+        } else {
+          that.$message({type: 'error', message: data.msg, showClose: true})
+        }
+
+      }).catch(error => {
+        if (error !== 'error') {
+          that.$message({type: 'error', message: '评论失败', showClose: true})
+        }
+      })
+    }
   }
 }
 </script>
@@ -250,7 +195,12 @@ export default {
   margin:-225px 0 0 -400px;
 
 }
-
+.clickInButton {
+  border: 10px;
+padding: 10px;
+font-size: 20px;
+  margin: 10px;
+}
 .flex{
   box-sizing: border-box;
 
@@ -380,15 +330,16 @@ export default {
 }
 
 .center {
-  margin-left: 100px;
-  margin-bottom: 20px;
-  margin-top: 20px;
+  margin: 10px 25%;
   width: 50%;
   border: 3px solid #73AD21;
   padding: 10px;
+  border-radius:15px
 }
 
 .me-view-comment-text {
   font-size: 16px;
 }
+
+
 </style>

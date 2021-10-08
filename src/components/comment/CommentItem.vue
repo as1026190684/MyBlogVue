@@ -7,7 +7,6 @@
       <div class="me-view-info">
         <span class="me-view-nickname">{{comment.author.nickname}}</span>
         <div class="me-view-meta">
-          <span>{{rootCommentCounts - index}}楼</span>
           <span>{{comment.createDate | format}}</span>
         </div>
       </div>
@@ -71,7 +70,6 @@
       articleId: Number,
       comment: Object,
       index: Number,
-      rootCommentCounts: Number
     },
     data() {
       return {

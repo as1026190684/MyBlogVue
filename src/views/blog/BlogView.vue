@@ -250,7 +250,7 @@
   }
 
   .me-view-container {
-    width: 800px;
+    width: 1200px;
   }
 
   .el-main {

@@ -1,17 +1,17 @@
 <template>
   <div id="home">
     <el-container>
-    	
+
     	<base-header :activeIndex="activeIndex"></base-header>
-		  
+
 		  <router-view class="me-container"/>
-		  
+
 			<base-footer v-show="footerShow"></base-footer>
-		  
+
 		</el-container>
-		
+
   </div>
-  
+
 </template>
 
 <script>
@@ -50,6 +50,9 @@ export default {
 <style>
 
 .me-container{
-  margin: 100px auto 140px;
+  margin: 40px 5% ;
+padding-top: 20px;
+  width: 100%;
 }
+
 </style>

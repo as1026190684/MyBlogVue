@@ -28,15 +28,26 @@ export function getUserInfo(token) {
   })
 }
 
-export function register(account, nickname, password) {
+export function register(account, nickname, password,inviteCode) {
   const data = {
     account,
     nickname,
-    password
+    password,
+    inviteCode
   }
   return request({
     url: '/register',
     method: 'post',
     data
+  })
+}
+//更新头像
+//todo 服务器是否支持patch请求，如何实现
+export function updateAvatarToDb(filePath,token) {
+  return request({
+    headers: {'Authorization': token},
+    url: `/users/updateAvatar`,
+    method: 'post',
+    data:filePath
   })
 }

@@ -17,7 +17,7 @@
               <img class="me-view-picture" :src="article.author.avatar"></img>
             </a>
             <div class="me-view-info">
-              <span>{{article.author}}</span>
+              <span>{{article.author.nickname}}</span>
               <div class="me-view-meta">
                 <span>{{article.createDate | format}}</span>
                 <span>阅读   {{article.viewCounts}}</span>
@@ -31,7 +31,8 @@
               style="position: absolute;left: 60%;"
               size="mini"
               round
-              icon="el-icon-edit">编辑</el-button>
+              icon="el-icon-edit"
+            type="button">编辑</el-button>
           </div>
           <div class="me-view-content">
             <markdown-editor :editor=article.editor></markdown-editor>
@@ -49,13 +50,13 @@
           <div class="me-view-tag">
             标签：
             <!--<el-tag v-for="t in article.tags" :key="t.id" class="me-view-tag-item" size="mini" type="success">{{t.tagName}}</el-tag>-->
-            <el-button @click="tagOrCategory('tag', t.id)" size="mini" type="primary" v-for="t in article.tags" :key="t.id" round plain>{{t.tagName}}</el-button>
+            <el-button @click="tagOrCategory('tag', t.id)" size="mini" type="button" v-for="t in article.tags" :key="t.id" round plain>{{t.tagName}}</el-button>
           </div>
 
           <div class="me-view-tag">
             文章分类：
             <!--<span style="font-weight: 600">{{article.category.categoryName}}</span>-->
-            <el-button @click="tagOrCategory('category', article.category.id)" size="mini" type="primary" round plain>{{article.category.categoryName}}</el-button>
+            <el-button @click="tagOrCategory('category', article.category.id)" size="mini" type="button" round plain>{{article.category.categoryName}}</el-button>
           </div>
 
           <div class="me-view-comment">
@@ -63,7 +64,7 @@
               <el-row :gutter="20">
                 <el-col :span="2">
                   <a class="">
-                    <img class="me-view-picture" :src="avatar"></img>
+                    <img class="me-view-picture" :src="article.author.avatar"></img>
                   </a>
                 </el-col>
 
@@ -82,7 +83,7 @@
 
               <el-row :gutter="20">
                 <el-col :span="2" :offset="22">
-                  <el-button type="text" @click="publishComment()">评论</el-button>
+                  <el-button type="button" @click="publishComment()">评论</el-button>
                 </el-col>
               </el-row>
             </div>
@@ -91,15 +92,15 @@
               <span>{{article.commentCounts}} 条评论</span>
             </div>
 
-            <commment-item
+            <comment-item
               v-for="(c,index) in comments"
               :comment="c"
               :articleId="article.id"
               :index="index"
               :rootCommentCounts="comments.length"
               @commentCountsIncrement="commentCountsIncrement"
-              :key="c.id">
-            </commment-item>
+              :key="index">
+            </comment-item>
 
           </div>
 
@@ -112,7 +113,7 @@
 
 <script>
   import MarkdownEditor from '@/components/markdown/MarkdownEditor'
-  import CommmentItem from '@/components/comment/CommentItem'
+  import CommentItem from '@/components/comment/CommentItem'
   import {viewArticle} from '@/api/article'
   import {getCommentsByArticle, publishComment} from '@/api/comment'
 
@@ -162,7 +163,7 @@
         return default_avatar
       },
       title() {
-        return `${this.article.title} - 文章 - 码神之路`
+        return `${this.article.title} - 文章 - `
       }
     },
     methods: {
@@ -177,6 +178,8 @@
         viewArticle(that.$route.params.id).then(data => {
           Object.assign(that.article, data.data)
           that.article.editor.value = data.data.body.content
+
+          // console.log(that.article.author)
 
           that.getCommentsByArticle()
         }).catch(error => {
@@ -198,7 +201,7 @@
             that.comment.content = ''
             that.comments.unshift(data.data)
             that.commentCountsIncrement()
-
+            this.$router.go(0)
           }else{
                that.$message({type: 'error', message: data.msg, showClose: true})
           }
@@ -230,7 +233,7 @@
     },
     components: {
       'markdown-editor': MarkdownEditor,
-      CommmentItem
+      CommentItem
     },
     //组件内的守卫 调整body的背景色
     beforeRouteEnter(to, from, next) {

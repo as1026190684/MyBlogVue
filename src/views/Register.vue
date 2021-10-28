@@ -1,8 +1,6 @@
 <template>
-  <div id="register" v-title data-title="注册 - 码神之路">
-    <!--<video preload="auto" class="me-video-player" autoplay="autoplay" loop="loop">
-          <source src="../../static/vedio/sea.mp4" type="video/mp4">
-      </video>-->
+  <div id="register" v-title data-title="注册">
+
 
     <div class="me-login-box me-login-box-radius">
       <h1>YTTE Register</h1>
@@ -20,8 +18,12 @@
           <el-input placeholder="密码" type="password" v-model="userForm.password"></el-input>
         </el-form-item>
 
+        <el-form-item prop="inviteCode">
+          <el-input placeholder="邀请码"  v-model="userForm.inviteCode"></el-input>
+        </el-form-item>
+
         <el-form-item size="small" class="me-login-button">
-          <el-button type="primary" @click.native.prevent="register('userForm')">注册</el-button>
+          <el-button type="button" @click.native.prevent="register('userForm')">注册</el-button>
         </el-form-item>
       </el-form>
 
@@ -41,7 +43,8 @@
         userForm: {
           account: '',
           nickname: '',
-          password: ''
+          password: '',
+          inviteCode: ''
         },
         rules: {
           account: [
@@ -55,6 +58,9 @@
           password: [
             {required: true, message: '请输入密码', trigger: 'blur'},
             {max: 10, message: '不能大于10个字符', trigger: 'blur'}
+          ],
+          inviteCode: [
+            {required: true, message: '请输入邀请码', trigger: 'blur'},
           ]
         }
 

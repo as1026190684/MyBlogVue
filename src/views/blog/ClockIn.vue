@@ -1,205 +1,464 @@
 <template>
-
   <div id="app">
-<!--    <el-container class="me-view-container">-->
-
-    <el-row :gutter="10">
-      <el-col :span="3">
-        <span style="margin-top: 200px">日历</span>
+    <el-row :gutter="10" style="width: 600px;" class="center1">
+      <el-col :md="10" style="width: 600px;">
+        <div  style="width: 600px;height: 500px">
+          <div style="width: 600px;height: 500px;" class="bigBackground"></div>
+          <!--    标题、上月、下月-->
+          <div class="width-100-per layout-side" style="height: 10%;">
+            <div class="cursor-pointer layout-center leftRightBtn" @click="prevMonth" style="font-size: 30px">&lt;</div>
+            <div class="height-100-per layout-center-top width-40-per">
+              <div class="layout-center">
+                <span style="font-weight: bold;padding-top: 8px;font-size: 20px">{{`${newDate.split('-')[0]}年${newDate.split('-')[1]}月`}}</span>
+              </div>
+            </div>
+            <div class="cursor-pointer layout-center leftRightBtn" @click="nextMonth" style="font-size: 30px">&gt;</div>
+          </div>
+          <!--    日期表-->
+          <div class="width-100-per layout-left-top padding-10-px" style="height: calc(100% - 10%)">
+            <!--      星期-->
+            <div class="width-100-per layout-left-top" style="height: 10%">
+              <div style="width: calc(100% / 7);" class="layout-center" v-for="(i,index) in weekArr" :key="index + i">{{i}}
+              </div>
+            </div>
+            <!--      日期-->
+            <div class="width-100-per layout-left-top" style="height: 90%">
+              <template v-for="(i,index) in dateArr">
+                <div class="layout-center tableCol" :style="{height: 'calc(100% / '+maxTableRow+')'}" :key="index"
+                     :class="{'topBorderNone':index<7,'rightBorderNone':(index+8)%7===0}" @click="getOneDayPlan(i)? OneDayPlanDialogVisible = true : OneDayPlanDialogVisible = false">
+                  <!--小圆圈背景 -->
+                  <div v-if="!showDayStatus(i)" class="miniBackground"></div>
+                  <!--   判断是否需要设置非本月日期的背景 -->
+                  <div v-if="showDayStatus(i)" class="checkBadge" ></div>
+                  <!--                  签过到的日期-->
+                  <div v-else  :class="clockInYesMethod(i)" style=""></div>
+                  <div :title="i" class="width-100-per height-100-per layout-center " :class="[{'checked':i===thisDate}]" style="cursor:pointer;position: relative">
+                    <span style="font-size: 20px;"  >{{i === '' ? '' : Number(i.split('-')[2])}}</span>
+                  </div>
+                </div>
+              </template>
+              <el-dialog
+                title="当日规划"
+                :visible.sync="OneDayPlanDialogVisible"
+                :modal-append-to-body='false'
+                width="50%"
+                >
+                  <span>
+                    <mission-planning-one-day-plan
+                      ref="OneDayPlanDialog"
+                    ></mission-planning-one-day-plan>
+                  </span>
+                <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="OneDayPlanDialogVisible =false;">确 定</el-button>
+                </span>
+              </el-dialog>
+            </div>
+          </div>
+        </div>
       </el-col>
     </el-row>
 
-    <el-row :gutter="10">
-      <el-col :md="7">
-          <calendar
-            style="border-radius: 20px"
-            ref="calendar3"
-            :events="calendar3.events"
-            :lunar="calendar3.lunar"
-            :value="calendar3.value"
-            :begin="calendar3.begin"
-            :end="calendar3.end"
-            :weeks="calendar3.weeks"
-            :months="calendar3.months"
-            @select=""
-            @selectMonth="calendar3.selectMonth"
-            @selectYear="calendar3.selectYear"
-          >
-          </calendar>
-          <!--        <button @click="changeEvents">异步更新Price</button>-->
-          <!--        <button @click="calendar3.value=[2018,1,Math.floor(Math.random()*30+1)]">动态设置日期</button>-->
-          <button @click="$refs.calendar3.setToday();isSelected()" class="center">返回今天</button>
-      </el-col>
+        <el-row :gutter="10" style="padding-top: 20px;padding-bottom: 20px; ">
+          <el-col :md="12" style="margin-left:auto;margin-right:auto" class="flex1">
+<!--            <div>
+              <el-input
+                type="textarea"
+                :autosize="{ minRows: 2}"
+                placeholder="打卡内容..."
+                class="me-view-comment-text"
+                v-model="content.length"
+                resize="none">
+              </el-input>
+            </div>-->   <el-button type="primary" @click="dialogVisible = true" class="clickInButton">每日规划</el-button>
+          </el-col>
 
-        <el-col :md="14">
-          <div>
-            <el-input
-              type="textarea"
-              :autosize="{ minRows: 2}"
-              placeholder="打卡内容..."
-              class="me-view-comment-text"
-              v-model="comment.content"
-              resize="none">
-            </el-input>
+            <el-col  :md="12" style="margin-left:auto;margin-right:auto" >
+              <el-dialog
+                title="每日规划"
+                :visible.sync="dialogVisible"
+                :modal-append-to-body='false'
+                width="70%">
+                <span>
+                  <!--                :before-close="handleClose"-->
+                  <mission-planning
+                    @pushTrueMission="pushTrueMission"
+                    @withdrawMission="withdrawMission"
+                  ></mission-planning>
+                </span>
+                <span slot="footer" class="dialog-footer">
+                  <el-tooltip class="item" effect="dark" content="读取刷新网页前填写内容" placement="top">
+                    <el-button style="width: 70px;height: 40px" type="primary" @click="queryPlanCache()">查询</el-button>
+                  </el-tooltip>
+                  <el-tooltip  class="item" effect="dark" content="暂时提交以免刷新网页后丢失，最终提交需要再点击打卡" placement="top">
+                    <el-button style="width: 70px;height: 40px" type="primary" @click="dialogVisible =false;putPlanToRedis()">确 定</el-button>
+                  </el-tooltip>
+                </span>
+              </el-dialog>
+
+<!--              <dialog :dialog-visible="dialogVisible"></dialog>-->
+              <el-button type="primary" @click="submitContent()" class="clickInButton">打卡</el-button>
+            </el-col>
+        </el-row>
+
+        <el-row :gutter="10" style="width: 600px;">
+          <div v-if="loadingPage">
+            <pagination
+            :allClockInDataArr="allClockInArr">
+            </pagination>
           </div>
-        </el-col>
-
-        <el-col :md="3">
-            <el-button type="text" @click="publishComment()" class="clickInButton">打卡</el-button>
-        </el-col>
-
-      <commment-item
-        v-for="(c,index) in comments"
-        :comment="c"
-        :articleId="article.id"
-        :index="index"
-        :rootCommentCounts="comments.length"
-        @commentCountsIncrement="commentCountsIncrement"
-        :key="c.id">
-      </commment-item>
-      <h1>111111</h1>
-      </el-row>
+        </el-row>
 
   </div>
 
 </template>
 
 <script>
-import CommmentItem from '@/components/comment/CommentItem'
-import {getCommentsByArticle, publishComment} from '@/api/clockin'
-import calendar from './calendar.vue'
+import moment from 'moment'
+import {
+  getAllClockIn,
+  pushClockInContent,
+  getIndividualClockIn,
+  getOneDayPlan,
+  putPlanToRedis,
+  queryPlanCache
+} from '@/api/clockin'
+import Pagination  from '@/components/pagination/Pagination'
+import Dialog from '@/components/clockIn/missionPlanning/Dialog';
+import MissionPlanning from '@/components/clockIn/missionPlanning/MissionPlanning';
+import MissionPlanningOneDayPlan from '@/components/clockIn/missionPlanning/MissionPlanningOneDayPlan'
 
 export default {
   name: "ClockIn",
   components: {
-    calendar,
-    CommmentItem
+    Pagination,
+    Dialog,
+    MissionPlanning,
+    MissionPlanningOneDayPlan
   },
+
   data() {
     return {
-      isSelecteds: 'ds',
-      today: [],
-      comments: [],
-      comment: {
-        article: {},
-        content: ''
-      },
-      article: {
-        id: '',
-        title: '',
-        commentCounts: 0,
-        viewCounts: 0,
-        summary: '',
-        author: {},
-        tags: [],
-        category:{},
-        createDate: '',
-        editor: {
-          value: '',
-          toolbarsFlag: false,
-          subfield: false,
-          defaultOpen: 'preview'
-        }
-      },
-      /*calendar1:{
-        value:[2017,7,20], //默认日期
-        // lunar:true, //显示农历
-        weeks:['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-        months:['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-        events:{
-          '2017-7-7':'$408',
-          '2017-7-20':'$408',
-          '2017-7-21':'$460',
-          '2017-7-22':'$500',
-        },
-        select(value){
-        },
-        selectMonth(month,year){
-        },
-        selectYear(year){
-        },
-        timestamp:Date.now()
-      },*/
+      isDisabled: 'disabled',
+      userId: this.$store.state.id,
+      dialogVisible: false,
+      OneDayPlanDialogVisible : false,
 
-      calendar3: {
-        display: "2021/10/1",
-        show: false,
-        zero: true,
-        value: this.today, //显示当前日期
-        lunar: true, //显示农历
-        select: (value) => {
-          this.calendar3.show = false;
-          this.calendar3.value = value;
-          this.calendar3.display = value.join("/");
-        },
-        selectMonth(month, year) {
-        },
-        selectYear(year) {
-        },
-        timestamp: Date.now()
-      }
+      allClockInArr: [],
+      loadingPage: false,
+      isChecked: false,
+      thisDate: moment().format('YYYY-MM-DD'),//当前时间
+      thisMonthDays: '',//当月天数
+      thisDateWeek: '',//当月第一天是星期几
+      newDate: '',//标题展示时间
+      dateArr: [],//日期数组，有则填日期，无则填‘’
+      weekArr: ['日','一', '二', '三', '四', '五', '六'],
+      checkArr: [],//已经打过卡的数组，由后端返回，这里写死
+      content: [],//个人打卡内容
+      contentCache: [],
+      oneDayTimeArr: [],
+      maxTableRow: 0,//列固定7列，这是当月最大行数
+      // taskIndex:0,
     }
   },
-  methods: {
-    created: function () {
-      let yy = new Date().getFullYear();
-      let mm = new Date().getMonth() + 1;
-      let dd = new Date().getDate();
-      this.today = [yy, mm, dd];
-    },
-    isSelected() {
-      this.isSelecteds = 'selected';
-    },
+  mounted() {
+    this.calendarTable(this.thisDate);
 
-    closeByDialog() {
-      this.calendar4.show = false;
-    },
+  },
 
-    publishComment() {
-      let that = this
-      if (!that.comment.content) {
-        return;
+  created() {
+    this.getIndividualClockInMethod();
+  },
+  computed: {
+    //判断当天状态
+    showDayStatus() {
+      const that = this;
+      return function (value) {
+        if (!value){
+          let flag = false;
+          for (let ca of that.checkArr) {
+            if ((ca).indexOf(value)>-1) {
+              flag = true
+            }
+          }
+          return flag
+        }
       }
-      that.comment.article.id = that.article.id
-      let parms = {articleId: that.article.id, content: that.comment.content}
-      publishComment(parms, this.$store.state.token).then(data => {
+    },
+    clockInYesMethod:function () {
+      const that = this;
+      that.isChecked = false;
+      return function (value) {
+        if (value !== null) {
+          for (let ca of that.checkArr) {
+            if ((ca).indexOf(value) > -1) {
+              /*              that.isChecked = true;*/
+              return 'clockInYes';
+            }
+          }return '11';
+        }return '11';
+      }
+    },
+  },
+  methods: {
+    queryPlanCache() {
+      let that=this
+      if (this.$store.state.token === null) {
+        return  that.$message({type: 'error', message: '请先登录', showClose: true})
+      }
+      queryPlanCache(this.$store.state.token).then(data => {
         if (data.success) {
-          that.$message({type: 'success', message: '打卡成功', showClose: true})
-          that.comment.content = ''
-          that.comments.unshift(data.data)
-          that.commentCountsIncrement()
-
+          this.$refs.MissionPlanning.clearTasks();
+          for (let item of data.data) {
+            this.$refs.MissionPlanning.tasksPush(item);
+          }
+          that.$message({type: 'success', message: '暂存成功', showClose: true});
         } else {
-          that.$message({type: 'error', message: data.msg, showClose: true})
+          that.$message({type: 'error', message: data.message, showClose: true})
+        }
+      }).catch(error => {
+        if (error !== 'error') {
+          console.log(error);
+          that.$message({type: 'error', message: error, showClose: true})
+        }
+      });
+    },
+
+    putPlanToRedis() {
+      let that=this
+      if (this.$store.state.token.length === 0) {
+        return  that.$message({type: 'error', message: '请先登录', showClose: true})
+      }
+      console.log(that.contentCache);
+      if (that.contentCache.length === 0) {
+        return that.$message({type: 'error', message: '内容为空不能暂存哦~~~', showClose: true})
+      }
+      putPlanToRedis(that.contentCache,this.$store.state.token).then(data => {
+        if (data.success) {
+          that.$message({type: 'success', message: '暂存成功', showClose: true});
+        } else {
+          that.$message({type: 'error', message: data.message, showClose: true})
+        }
+      }).catch(error => {
+        if (error !== 'error') {
+          console.log(error);
+          that.$message({type: 'error', message: error, showClose: true})
+        }
+      });
+    },
+    pushTrueMission(value) {
+      if (this.contentCache === null) {
+        this.contentCache = value;
+      }
+      this.contentCache.push(value);
+      //  console.log("submit   "+this.taskIndex);
+      // console.log("submit  "+this.contentCache.length);
+    },
+
+    withdrawMission(value) {
+      let _contentCache;
+      _contentCache = this.contentCache;
+      _contentCache.forEach(function (item, index) {
+        if (item.text === value.text) {
+          _contentCache.splice(index, 1);
+        }
+      })
+      // console.log("withdraw    "+this.taskIndex);
+      // console.log("withdraw  "+this.contentCache.length);
+    },
+
+    getAllClockInMethod: function () {
+      let that = this
+      getAllClockIn().then(data => {
+        if (data.success) {
+          that.allClockInArr = data.data;
+          that.loadingPage = true;
+
+          that.$message({type: 'success', message: '全部打卡查询成功', showClose: true});
+        } else {
+          that.$message({type: 'error', message: data.message, showClose: true})
+        }
+      }).catch(error => {
+        if (error !== 'error') {
+          console.log(error);
+          that.$message({type: 'error', message: error, showClose: true})
+        }
+      });
+    },
+
+    submitContent(textData) {
+      let that = this
+      console.log(that.contentCache);
+      if (that.contentCache.length < 1) {
+        this.$message({
+          message: '您的计划为空 或 未点击规划确定按钮(*^▽^*)',
+          type: 'warning'
+        });
+        return null;
+      }
+
+      const h = this.$createElement;
+      this.$msgbox({
+        title: '消息',
+        message: h('p', null, "您确定要提交每日规划并打卡吗？"),
+        showCancelButton: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        beforeClose: (action, instance, done) => {
+          if (action === 'confirm') {
+            instance.confirmButtonLoading = true;
+            instance.confirmButtonText = '执行中...';
+
+            that.contentCache.forEach(function (item, index) {
+              that.content.push(item.text);
+            });
+
+            pushClockInContent(that.content, this.$store.state.token).then(data => {
+              if (data.success) {
+                that.$message({type: 'success', message: '打卡成功', showClose: true});
+                this.$router.go(0)
+              } else {
+                that.$message({type: 'error', message: data.message, showClose: true})
+              }
+            }).catch(error => {
+              if (error !== 'error') {
+                console.log(error);
+                that.$message({type: 'error', message: error, showClose: true})
+              }
+            });
+            this.content = [];
+
+            setTimeout(() => {
+              done();
+              setTimeout(() => {
+                instance.confirmButtonLoading = false;
+              }, 300);
+            }, 3000);
+          } else {
+            done();
+          }
+        }
+      });
+    },
+
+    getOneDayPlan(value) {
+      let that = this;
+
+      if (value === "") {
+        that.$message({type: "warning", message: '日期不能为空哦！(*^▽^*)', showClose: true});
+        return false;
+      }
+      // console.log("value   ="+ value);
+      for (let ca of that.checkArr) {
+        // console.log("for   ="+ ca);
+        if ((ca).indexOf(value) > -1) {
+          // console.log("ca   =" + ca);
+          getOneDayPlan(this.$store.state.token, value).then(data => {
+            if (data.success) {
+              that.oneDayTimeArr = data.data.content;
+              this.$refs.OneDayPlanDialog.getOneDayTimeArr(that.oneDayTimeArr);
+            } else {
+              that.$message({type: "error", message: data.message, showClose: true});
+            }
+          }).catch(error => {
+            if (error !== "error") {
+              that.$message({type: 'error', message: error, showClose: true})
+            }
+          });
+          return true;
+        }
+      }that.$message({type: "warning", message: '当天没有打卡哦！(*^▽^*)', showClose: true});
+      return false;
+    },
+
+    getIndividualClockInMethod() {
+      let that = this
+      getIndividualClockIn(this.$store.state.token).then(data => {
+        if (data.success) {
+          // that.checkArr = data.data
+          for (let ca of data.data) {
+            ca.trim('"')
+            that.checkArr.push(ca);
+          }
+          that.getAllClockInMethod();
+        } else {
+          that.$message({type: 'error', message: data.message, showClose: true})
         }
 
       }).catch(error => {
         if (error !== 'error') {
-          that.$message({type: 'error', message: '评论失败', showClose: true})
+          that.$message({type: 'error', message: error, showClose: true})
         }
       })
-    }
+    },
+
+    //绘制日历表格
+    calendarTable(date) {
+      const that = this;
+      that.dateArr = [];            //日期数组，有则填日期，无则填‘’
+      that.newDate = date;          //标题展示时间
+      let yearMonthDay = that.newDate.split('-');     // 当前年月日
+      //当月天数
+      that.thisMonthDays = moment(date).daysInMonth();
+      //当月一号是星期几
+      that.thisDateWeek = moment(date).date(1).weekday();
+      let calendarArr = [];
+      //往日历数组装每天的日期
+      for (let i = 1; i < that.thisMonthDays + 1; i++) {
+        calendarArr.push(yearMonthDay[0] + '-' + yearMonthDay[1] + '-' + (i < 10 ? '0' + i : i))
+      }
+      // 有当月一号是星期几根据规则往前面补空位
+      for (let j = 0; j < that.thisDateWeek; j++) {
+        calendarArr.unshift('')
+      }
+      // 表格列数固定为7列，获取最大行数
+      let len = calendarArr.length;
+      let arrRow = Math.ceil(len / 7);
+      that.maxTableRow = arrRow;
+      // 获取整个表格的格子个数，给后面多余的格子补空
+      for (let k = 0; k < arrRow * 7 - len; k++) {
+        calendarArr.push('')
+      }
+      that.dateArr = calendarArr;
+    },
+
+    //上个月
+    prevMonth() {
+      const that = this;
+      let date = moment(that.newDate).subtract(1, 'months').format('YYYY-MM-DD');
+      that.calendarTable(date)
+    },
+
+    // 下个月
+    nextMonth() {
+      const that = this;
+      let date = moment(that.newDate).add(1, 'months').format('YYYY-MM-DD');
+      that.calendarTable(date)
+    },
+
   }
 }
 </script>
 
 <style>
-/*demo*/
-#all{
-  width: 400px;
-  height: 410px;
-  border: 1px solid green;
-  position:absolute;
-  top:34%;
-  left:35%;
-  margin:-225px 0 0 -400px;
+/*.el-dialog__header, .el-dialog__body, .el-dialog__footer{*/
+/*  max-width: 600px !important;*/
+/*}*/
 
+.el-button--primary {
+  background-color: #554ff8;
 }
 .clickInButton {
   border: 10px;
 padding: 10px;
 font-size: 20px;
   margin: 10px;
+}
+.flex1 {
+  flex-direction:row ;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items:flex-start;
+  align-content:stretch;
 }
 .flex{
   box-sizing: border-box;
@@ -261,58 +520,6 @@ font-size: 20px;
 
 }
 
-/*下拉框*/
-.calendar-dropdown{
-  background: #fff;
-  position: absolute;
-  left:0;
-  top:0;
-  padding:20px;
-  border: 1px solid #eee;
-  border-radius: 2px;
-}
-.calendar-dropdown:before {
-  position: absolute;
-  left:30px;
-  top: -10px;
-  content: "";
-  border:5px solid rgba(0, 0, 0, 0);
-  border-bottom-color: #DEDEDE;
-}
-.calendar-dropdown:after {
-  position: absolute;
-  left:30px;
-  top: -9px;
-  content: "";
-  border:5px solid rgba(0, 0, 0, 0);
-  border-bottom-color: #fff;
-}
-
-/*弹出框*/
-.calendar-dialog{
-  position: absolute;
-  left:0;
-  top:0;
-  right:0;
-  bottom:0;
-}
-
-.calendar-dialog-mask{
-  background:rgba(255,255,255,.5);
-  width:100%;
-  height:100%;
-}
-
-.calendar-dialog-body{
-  background: #fff;
-  position: absolute;
-  left:50%;
-  top:50%;
-  transform: translate(-50%,-50%);
-  padding:20px;
-  border: 1px solid #eee;
-  border-radius: 2px;
-}
 *{
   margin: 0;
   padding: 0;
@@ -329,17 +536,143 @@ font-size: 20px;
   margin-left: 220px;
 }
 
-.center {
-  margin: 10px 25%;
-  width: 50%;
-  border: 3px solid #73AD21;
-  padding: 10px;
-  border-radius:15px
+.center1 {
+
 }
 
 .me-view-comment-text {
   font-size: 16px;
+
 }
 
+/*------------------------------------------------------------------*/
+.tableCol {
+  width: calc(97%/ 7);
+  border-top: 1px dashed rgb(203, 201, 163);
+  border-right: 1px dashed rgb(203, 201, 163)
+}
+
+.leftRightBtn {
+  width: 10%;
+  height: 100%;
+}
+
+.leftRightBtn:hover, .tableCol:hover {
+  color: black;
+  background: #f8df8d;
+  border-radius: 10%;
+}
+
+.checked {
+  width: 90% !important;
+  height: 90% !important;
+  color: black;
+  border-radius: 30%;
+  cursor: pointer !important;
+  background-color: rgba(116, 245, 116,0.7);
+}
+.clockInYes {
+  width: 76px;
+  height: 67px;
+  color: black;
+  border-radius: 10%;
+  z-index: -1;
+  position: absolute;
+  background-color: rgba(181, 116, 245,0.5);
+}
+.checkBadge {
+  width: 73px;
+  height: 65px;
+  border-radius: 10%;
+  position: absolute;
+  background-color: rgba(227, 219, 219, 0.5);
+
+}
+
+.topBorderNone {
+  border-top: none !important;
+}
+
+.rightBorderNone {
+  border-right: none !important;
+}
+/*布局部分*/
+.layout-side {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  justify-content: space-between;
+  align-items: center;
+}
+
+.layout-center {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  justify-content: center;
+  align-items: center;
+}
+
+.layout-center-top {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.layout-left-top {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.width-100-per {
+  width: 100%;
+  /*text-align: center;*/
+}
+.height-100-per {
+  height: 100%;
+}
+
+.bigBackground {
+  background: url("http://static.ytte.top/1.png");
+  background-size:cover;
+  -webkit-filter:blur(1px);
+  -ms-filter:blur(1px);
+  filter:blur(1px);
+  position:absolute;
+  z-index: -3;
+  border-radius:5%;
+}
+.miniBackground {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  position: absolute;
+  z-index: 0;
+  background-color: rgba(227, 219, 219, 0.5);
+}
+
+/*-------------------------------------------------------------------*/
+
+body > .el-container {
+  margin-bottom: 40px;
+}
+
+.el-container:nth-child(5) .el-aside,
+.el-container:nth-child(6) .el-aside {
+  line-height: 260px;
+}
+
+.el-container:nth-child(7) .el-aside {
+  line-height: 320px;
+}
 
 </style>

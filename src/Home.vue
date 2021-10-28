@@ -1,10 +1,10 @@
 <template>
   <div id="home">
-    <el-container>
+    <el-container >
 
     	<base-header :activeIndex="activeIndex"></base-header>
 
-		  <router-view class="me-container"/>
+		  <router-view class="me-container" />
 
 			<base-footer v-show="footerShow"></base-footer>
 
@@ -49,10 +49,14 @@ export default {
 
 <style>
 
-.me-container{
-  margin: 40px 5% ;
-padding-top: 20px;
-  width: 100%;
+.me-container {
+  margin: 100px auto 140px;
+
 }
+
+.el-container {
+
+}
+
 
 </style>

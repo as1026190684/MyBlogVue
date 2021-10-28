@@ -63,6 +63,16 @@ export function publishArticle(article,token) {
   })
 }
 
+export function updateArticle(article,token) {
+  return request({
+    headers: {'Authorization': token},
+    url: '/articles/update',
+    method: 'post',
+    data: article
+  })
+}
+
+
 export function listArchives() {
   return request({
     url: '/articles/listArchives',
@@ -74,5 +84,12 @@ export function getArticleById(id) {
   return request({
     url: `/articles/${id}`,
     method: 'post'
+  })
+}
+
+export function getArticlesByUserId(id) {//获取个人的所有文字
+  return request({
+    url: `/articles/getArticlesByUserId/${id}`,
+    method: 'get'
   })
 }

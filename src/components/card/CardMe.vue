@@ -1,13 +1,13 @@
 <template>
   <el-card>
-    <h1 class="me-author-name">码神之路</h1>
+    <h1 class="me-author-name">YTTE</h1>
     <div class="me-author-description">
-      <span><i class="el-icon-location-outline"></i> &nbsp;山西&太原</span>
-      <span><i class="me-icon-job"></i> &nbsp;java技术专家</span>
+<!--      <span><i class="el-icon-location-outline"></i> &nbsp;山西&太原</span>-->
+      <span><i class="me-icon-job"></i> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;吾生也有涯，而知也无涯</span>
     </div>
     <div class="me-author-tool">
       <i @click="showTool(qq)" :title="qq.title" class="iconfont icon-qq"></i>
-      <i @click="showTool(bilibili)" :title="bilibili.title" class="iconfont icon-bilibili-fill"></i>
+      <a :title="bilibili.title" class="iconfont icon-bilibili-fill" target="_blank" href="https://space.bilibili.com/318931404"></a>
     </div>
   </el-card>
 
@@ -18,10 +18,10 @@
     name: 'CardMe',
     data() {
       return {
-        qq: {title: 'QQ', message: '723663826'},
+        qq: {title: 'QQ', message: '1026190684'},
         bilibili: {
           title: '哔哩哔哩',
-          message: '<a target="_blank" href="https://space.bilibili.com/473844125">https://space.bilibili.com/473844125</a>'
+          message: '<a target="_blank" href="https://space.bilibili.com/318931404">https://space.bilibili.com/318931404</a>'
         }
       }
     },
@@ -59,6 +59,11 @@
   }
 
   .me-author-tool i {
+    cursor: pointer;
+    padding: 4px 10px;
+    font-size: 30px;
+  }
+  .me-author-tool a {
     cursor: pointer;
     padding: 4px 10px;
     font-size: 30px;

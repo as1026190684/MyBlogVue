@@ -4,7 +4,7 @@
 
       <el-col :span="4" class="me-header-left">
         <router-link to="/" class="me-title">
-          <img src="../assets/img/logo.png" />
+          <img  src="../assets/img/WebSite.png" />
         </router-link>
       </el-col>
 
@@ -33,19 +33,25 @@
 
           <template v-if="!user.login">
             <el-menu-item index="/login">
-              <el-button type="text">登录</el-button>
+              <el-button type="primary">登录</el-button>
             </el-menu-item>
             <el-menu-item index="/register">
-              <el-button type="text">注册</el-button>
+              <el-button type="primary">注册</el-button>
             </el-menu-item>
           </template>
 
           <template v-else>
             <el-submenu index>
               <template slot="title">
-                <img class="me-header-picture" :src="user.avatar"/>
+                <el-col>
+                   <img class="me-header-picture" :src="user.avatar"/>
+                  <div style="float:right;width: 50px;">
+                    <div style="" v-text="$store.state.name"></div>
+                  </div>
+                </el-col>
               </template>
-              <el-menu-item index @click="logout"><i class="el-icon-back"></i>退出</el-menu-item>
+              <el-menu-item  index @click="personalCenter"><i class="el-icon-user"></i>个人中心</el-menu-item>
+              <el-menu-item  index @click="logout"><i class="el-icon-back"></i>退出登录</el-menu-item>
             </el-submenu>
           </template>
         </el-menu>
@@ -87,6 +93,11 @@
             that.$message({message: error, type: 'error', showClose: true});
           }
         })
+      },
+
+      personalCenter() {
+        let that = this
+        this.$router.push({path: '/personalCenter'})
       }
     }
   }
@@ -122,5 +133,16 @@
     border-radius: 50%;
     vertical-align: middle;
     background-color: #5fb878;
+  }
+
+  /*退出登录按钮*/
+  .el-menu--collapse, .el-menu,  .el-menu--popup{
+    min-width: 100px !important;
+  }
+  .el-submenu {
+    min-width: 60px;
+  }
+  .el-menu-item:hover{
+    background-color: rgba(230, 208, 208, 0.5) !important;
   }
 </style>

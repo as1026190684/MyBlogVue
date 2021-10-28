@@ -1,4 +1,4 @@
-import Vue from 'vue'
+// import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/Home'
 /*import Index from '@/views/Index'
@@ -11,20 +11,29 @@ import BlogView from '@/views/blog/BlogView'
 import BlogAllCategoryTag from '@/views/blog/BlogAllCategoryTag'
 import BlogCategoryTag from '@/views/blog/BlogCategoryTag'*/
 
-import {Message} from 'element-ui';
 
+// const Vue = require('vue')
+// const {Message} = require('element-ui')
+// const router = require('vue-router')
 
 import store from '@/store'
+import {Message} from 'element-ui';
 
 import {getToken} from '@/request/token'
-
 Vue.use(Router)
+
+//todo 为什么能消除报错 NavigationDuplicated: Avoided redundant navigation to current location: "/".
+const originalPush = Router.prototype.push;
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 
 const router = new Router({
   routes: [
     {
       path: '/write/:id?',
       component: r => require.ensure([], () => r(require('@/views/blog/BlogWrite')), 'blogwrite'),
+      // component: resolve=>require(["@/views/blog/BlogWrite"],resolve),
       meta: {
         requireLogin: true
       },
@@ -38,6 +47,7 @@ const router = new Router({
           path: '/',
           component: r => require.ensure([], () => r(require('@/views/Index')), 'index')
         },
+
         {
           path: '/log',
           component: r => require.ensure([], () => r(require('@/views/Log')), 'log')
@@ -64,7 +74,14 @@ const router = new Router({
         },
         {
           path: '/clockIn',
-          component: r => require.ensure([], () => r(require('@/views/blog/ClockIn')), 'clockIn')
+          component: r => require.ensure([], () => r(require('@/views/blog/ClockIn')), 'clockIn'),
+          children: [
+            {
+              path: '/plan',
+              component: r => require.ensure([], () => r(require('@/views/blog/ClockIn')), 'clockIn'),
+              hidden: true
+            },
+          ]
         }
       ]
     },
@@ -75,13 +92,17 @@ const router = new Router({
     {
       path: '/register',
       component: r => require.ensure([], () => r(require('@/views/Register')), 'register')
-    }
+    },
+    {
+      path: '/personalCenter',
+      component: r => require.ensure([], () => r(require('@/views/PersonalCenter')), 'personalCenter')
+    },
 
   ],
   scrollBehavior(to, from, savedPosition) {
     return {x: 0, y: 0}
   }
-})
+});
 
 router.beforeEach((to, from, next) => {
 

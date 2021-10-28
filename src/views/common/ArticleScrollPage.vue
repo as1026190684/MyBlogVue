@@ -2,6 +2,7 @@
   <scroll-page :loading="loading" :offset="offset" :no-data="noData" v-on:load="load">
     <article-item v-for="a in articles" :key="a.id" v-bind="a"></article-item>
   </scroll-page>
+
 </template>
 
 <script>
@@ -75,6 +76,8 @@
       getArticles() {
         let that = this
         that.loading = true
+        // console.log("query   :  ")
+        // console.log(that.query)
 
         getArticles(that.query, that.innerPage).then(data => {
 
@@ -82,6 +85,7 @@
           if (newArticles && newArticles.length > 0) {
             that.innerPage.pageNumber += 1
             that.articles = that.articles.concat(newArticles)
+            // console.log(that.articles);
           } else {
             that.noData = true
           }

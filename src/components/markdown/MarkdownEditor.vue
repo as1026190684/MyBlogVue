@@ -31,7 +31,7 @@
       imgAdd(pos, $file) {
         let that = this
         let formdata = new FormData();
-        formdata.append('image', $file);
+        formdata.append('file', $file);
 
         upload(formdata).then(data => {
           // 第二步.将返回的url替换到文本原位置![...](./0) -> ![...](url)

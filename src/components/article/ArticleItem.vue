@@ -1,9 +1,9 @@
 <template>
-  <el-card class="me-area" :body-style="{ padding: '16px' }">
+  <el-card class="me-area" :body-style="{ padding: '16px' }" >
     <div class="me-article-header">
 
       <a @click="view(id)" class="me-article-title">{{title}}</a>
-      <el-button v-if="weight > 0" class="me-article-icon" type="text">置顶</el-button>
+      <el-button v-if="weight > 0" class="me-article-icon" type="button">置顶</el-button>
       <span class="me-pull-right me-article-count">
 	    	<i class="me-icon-comment"></i>&nbsp;{{commentCounts}}
 	    </span>
@@ -17,7 +17,7 @@
     </div>
     <div class="me-article-footer">
 	  	<span class="me-article-author">
-	    	<i class="me-icon-author"></i>&nbsp;{{author}}
+	    	<i class="me-icon-author"></i>&nbsp;{{author.nickname}}
 	    </span>
 
       <el-tag v-for="t in tags" :key="t.tagName" size="mini" type="success">{{t.tagName}}</el-tag>
@@ -42,7 +42,7 @@
       commentCounts: Number,
       viewCounts: Number,
       summary: String,
-      author: String,
+      author: Object,
       tags: Array,
       createDate: String
     },
@@ -96,6 +96,11 @@
 
   .el-tag {
     margin-left: 6px;
+  }
+  .el-card:hover{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 5px;
   }
 
 </style>

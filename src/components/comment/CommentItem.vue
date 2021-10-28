@@ -2,7 +2,7 @@
   <div class="me-view-comment-item">
     <div class="me-view-comment-author">
       <a class="">
-        <img class="me-view-picture" :src="comment.author.avatar"></img>
+        <img class="me-view-picture" :src="comment.author.avatar" alt=""/>
       </a>
       <div class="me-view-info">
         <span class="me-view-nickname">{{comment.author.nickname}}</span>
@@ -51,7 +51,7 @@
             resize="none">
           </el-input>
 
-          <el-button style="margin-left: 8px" @click="publishComment()" type="text">评论</el-button>
+          <el-button style="margin-left: 8px" @click="publishComment()" type="button">评论</el-button>
 
         </div>
 
@@ -63,13 +63,24 @@
 
 <script>
   import {publishComment} from '@/api/comment'
+  import default_avatar from "@/assets/img/default_avatar.png";
 
   export default {
     name: "CommentItem",
     props: {
-      articleId: Number,
+      articleId: String,
       comment: Object,
       index: Number,
+    },
+    computed: {
+      avatar() {
+        let avatar = this.$store.state.avatar
+
+        if (avatar.length > 0) {
+          return avatar
+        }
+        return default_avatar
+      },
     },
     data() {
       return {
@@ -82,6 +93,9 @@
     methods: {
       showComment(commentShowIndex, toUser) {
         this.reply = this.getEmptyReply()
+
+        console.log("this.comment.author.avatar");
+        console.log(this.comment.author.avatar);
 
         if (this.commentShowIndex !== commentShowIndex) {
           if (toUser) {

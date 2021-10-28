@@ -7,8 +7,9 @@
         </el-col>
         <el-col :span="4" :offset="6">
           <div class="me-write-btn">
-            <el-button round @click="publishShow">发布</el-button>
-            <el-button round @click="cancel">取消</el-button>
+            <el-button round v-if="isPublish" @click="publishShow" type="button">发布</el-button>
+            <el-button round v-else           @click="publishShow" type="button">更新</el-button>
+            <el-button round  @click="cancel" type="button">取消</el-button>
           </div>
         </el-col>
       </base-header>
@@ -33,6 +34,7 @@
       <el-dialog title="摘要 分类 标签"
                  :visible.sync="publishVisible"
                  :close-on-click-modal=false
+                 :modal-append-to-body='false'
                  custom-class="me-dialog">
 
         <el-form :model="articleForm" ref="articleForm" :rules="rules">
@@ -57,7 +59,8 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="publishVisible = false">取 消</el-button>
-          <el-button type="primary" @click="publish('articleForm')">发布</el-button>
+          <el-button v-if="isPublish" type="primary" @click="publish('articleForm')">发布</el-button>
+          <el-button v-else           type="primary" @click="update('articleForm')">更新</el-button>
         </div>
       </el-dialog>
     </el-container>
@@ -67,17 +70,19 @@
 <script>
   import BaseHeader from '@/views/BaseHeader'
   import MarkdownEditor from '@/components/markdown/MarkdownEditor'
-  import {publishArticle, getArticleById} from '@/api/article'
+  import {publishArticle, getArticleById,updateArticle} from '@/api/article'
   import {getAllCategorys} from '@/api/category'
   import {getAllTags} from '@/api/tag'
 
   export default {
     name: 'BlogWrite',
-    mounted() {
-
-      if(this.$route.params.id){
+    created() {
+      if (this.$route.params.id) {
         this.getArticleById(this.$route.params.id)
       }
+    },
+
+    mounted() {
 
       this.getCategorysAndTags()
       this.editorToolBarToFixedWrapper = this.$_.throttle(this.editorToolBarToFixed, 200)
@@ -89,6 +94,7 @@
     },
     data() {
       return {
+        isPublish: true,
         publishVisible: false,
         categorys: [],
         tags: [],
@@ -144,17 +150,17 @@
     },
     computed: {
       title (){
-        return '写文章 - 码神之路'
+        return '写文章 - '
 		}
 	},
     methods: {
       getArticleById(id) {
         let that = this
         getArticleById(id).then(data => {
-
+          // console.log(data);
+          this.isPublish = false;
           Object.assign(that.articleForm, data.data)
           that.articleForm.editor.value = data.data.body.content
-
           let tags = this.articleForm.tags.map(function (item) {
             return item.id;
           })
@@ -238,6 +244,60 @@
           }
         });
       },
+
+      update(articleForm) {
+
+        let that = this
+
+        this.$refs[articleForm].validate((valid) => {
+          if (valid) {
+
+            let tags = this.articleForm.tags.map(function (item) {
+              return {id: item};
+            });
+
+            let article = {
+              id: this.articleForm.id,
+              title: this.articleForm.title,
+              summary: this.articleForm.summary,
+              category: this.articleForm.category,
+              tags: tags,
+              body: {
+                content: this.articleForm.editor.value,
+                contentHtml: this.articleForm.editor.ref.d_render
+              }
+
+            }
+
+            this.publishVisible = false;
+
+            let loading = this.$loading({
+              lock: true,
+              text: '更新中，请稍后...'
+            })
+
+            updateArticle(article,this.$store.state.token).then((data) => {
+              if(data.success){
+                loading.close();
+                that.$message({message: '更新成功啦', type: 'success', showClose: true})
+                that.$router.push({path: `/view/${data.data}`})
+              }else{
+                that.$message({message: error, type: '更新文章失败:'+data.msg, showClose: true});
+              }
+
+            }).catch((error) => {
+              loading.close();
+              if (error !== 'error') {
+                that.$message({message: error, type: 'error', showClose: true});
+              }
+            })
+
+          } else {
+            return false;
+          }
+        });
+      },
+
       cancel() {
         this.$confirm('文章将不会保存, 是否继续?', '提示', {
           confirmButtonText: '确定',
@@ -323,7 +383,7 @@
   }
 
   .me-write-box {
-    max-width: 700px;
+    max-width: 1200px;
     margin: 80px auto 0;
   }
 

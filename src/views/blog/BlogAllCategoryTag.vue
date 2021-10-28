@@ -151,7 +151,7 @@
   }
 
   .me-allct-img {
-    margin: -40px 0 10px;
+    margin: 5px 0 10px;
     width: 60px;
     height: 60px;
     vertical-align: middle;

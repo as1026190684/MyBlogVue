@@ -1,11 +1,15 @@
 <template>
   <el-footer class="me-area">
     <div class="me-footer">
-      <p>Designed by
-        <strong>
-          <router-link to="/" class="me-login-design-color">码神之路</router-link>
-        </strong>
-      </p>
+<!--      <p>Designed by-->
+<!--        <strong>-->
+<!--          <router-link to="/" class="me-login-design-color">YTTE</router-link>-->
+<!--        </strong>-->
+<!--      </p>-->
+      <!-- 页脚 -->
+      <div id="footer">
+        <p>© 2021 www.ytte.top | <a href="http://beian.miit.gov.cn">皖ICP备2021014380号</a></p>
+      </div>
     </div>
   </el-footer>
 

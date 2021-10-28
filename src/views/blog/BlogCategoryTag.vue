@@ -18,7 +18,8 @@
         </div>
 
         <div class="me-ct-articles">
-          <article-scroll-page v-bind="article"></article-scroll-page>
+<!--          <article-scroll-page v-bind="article"></article-scroll-page>-->
+          <article-pagination v-bind="article"></article-pagination>
         </div>
 
       </el-main>
@@ -32,6 +33,7 @@
   import {getTagDetail} from '@/api/tag'
   import {getCategoryDetail} from '@/api/category'
   import defaultAvatar from '@/assets/img/logo.png'
+  import ArticlePagination from "@/components/article/ArticlePagination";
 
 
   export default {
@@ -117,7 +119,8 @@
       }
     },
     components: {
-      ArticleScrollPage
+      ArticleScrollPage,
+      'ArticlePagination': ArticlePagination
     }
   }
 </script>

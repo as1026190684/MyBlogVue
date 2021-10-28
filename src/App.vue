@@ -1,15 +1,31 @@
 <template>
   <div id="app">
-    <router-view/>
-    <go-top></go-top>
+    <div id="web_bg" style="">
+
+<!--      <music></music>-->
+      <div class="zz">
+        <router-view/>
+        <go-top></go-top>
+
+      </div>
+<!--      <div style="height:100%; width:100%;display: none;">花瓣飘落</div>-->
+    </div>
   </div>
 </template>
 
 <script>
 import GoTop from '@/components/gotop/GoTop'
+// import {snowfall}  from'"@/assets/snow/snowfall.jquery.js"'
+// import Music  from '@/components/music/Music'
 export default {
   name: 'App',
-  components: { GoTop }
+  components: {
+    GoTop,
+    // Music,
+  },
+  computed:{
+
+  }
 }
 </script>
 
@@ -40,4 +56,34 @@ body{position:relative;}
 .me-pull-right {
 	float: right;
 }
+#web_bg{
+  min-width:1000px;
+  min-height:1400px;
+  /*height: 3700px;*/
+  border-radius:40px;
+  box-shadow: 10px 10px 5px #888;
+  border:1px solid #666;
+ }
+#web_bg::before{
+  content:"";
+  background-image: url(http://static.ytte.top/%E4%B8%BB%E9%A1%B5%E8%83%8C%E6%99%AF.jpg);
+  background-attachment: fixed;
+  background-repeat:no-repeat;
+  opacity:0.2;
+  z-index:-1;
+  background-size:100% auto;
+  background-position: center;
+  width: 100%;/*父级要宽高100%并与body相同宽高，这样背景图片才不会因网页缩小变大滚动而变化*/
+  height: 100%;
+  position:absolute;
+  top:0;
+  left:0;
+  border-radius:40px;
+}
+
+ .zz {
+   opacity:0.8;
+   filter:alpha(opacity=40); /* 针对 IE8 以及更早的版本 */
+ }
+
 </style>

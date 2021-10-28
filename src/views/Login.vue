@@ -1,8 +1,6 @@
 <template>
-  <div id="login" v-title data-title="登录 - 码神之路">
-    <!--<video preload="auto" class="me-video-player" autoplay="autoplay" loop="loop">
-          <source src="../../static/vedio/sea.mp4" type="video/mp4">
-      </video>-->
+  <div id="login" v-title data-title="登录">
+
 
     <div class="me-login-box me-login-box-radius">
       <h1>YTTE Login</h1>
@@ -52,7 +50,6 @@
 
         this.$refs[formName].validate((valid) => {
           if (valid) {
-
             that.$store.dispatch('login', that.userForm).then(() => {
                 that.$router.go(-1)
             }).catch((error) => {

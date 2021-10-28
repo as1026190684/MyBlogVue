@@ -66,7 +66,7 @@ export default new Vuex.Store({
             removeToken()
             resolve(data)
           }
-
+          return false
         }).catch(error => {
           commit('SET_ACCOUNT', '')
           commit('SET_NAME', '')
@@ -74,6 +74,7 @@ export default new Vuex.Store({
           commit('SET_ID', '')
           removeToken()
           reject(error)
+          return false
         })
       })
     },
@@ -113,7 +114,7 @@ export default new Vuex.Store({
     },
     register({commit}, user) {
       return new Promise((resolve, reject) => {
-        register(user.account, user.nickname, user.password).then((data) => {
+        register(user.account, user.nickname, user.password,user.inviteCode).then((data) => {
           if(data.success){
             commit('SET_TOKEN', data.data)
             setToken(data.data)

@@ -4,6 +4,8 @@
     ref="md"
     v-model="editor.value"
     @imgAdd="imgAdd"
+    :codeStyle="codeStyle"
+    :ishljs="true"
     v-bind="editor">
   </mavon-editor>
 </template>
@@ -22,7 +24,9 @@
       editor: Object
     },
     data() {
-      return {}
+      return {
+        codeStyle:'monokai-sublime',//主题   mavon-editor.js自带的主题样式，不需要再次引入highlight.js
+      }
     },
     mounted() {
       this.$set(this.editor, 'ref', this.$refs.md)

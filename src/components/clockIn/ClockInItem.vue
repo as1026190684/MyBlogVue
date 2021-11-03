@@ -12,7 +12,10 @@
         </div>
       </div>
     </div>
+
     <el-card class="box-card">
+      <el-button v-if="oneClockInData.userId===this.$store.state.id" type="text" class="el-button-clock-in"
+      @click="withdrawTodayClockIn()">撤回</el-button>
       <div v-for="(item,index) in oneClockInData.content" :key="index" class="text item">
         {{index+1+" . "}} {{item.text }}
       </div>
@@ -25,7 +28,7 @@
 </template>
 
 <script>
-import {getAllClockIn} from '@/api/clockin'
+import {getAllClockIn, pushClockInContent, withdrawTodayClockIn} from '@/api/clockin'
 
 export default {
   name: "ClockInItem",
@@ -53,6 +56,43 @@ export default {
   mounted() {
   },
   methods: {
+    withdrawTodayClockIn() {
+      let that = this;
+      const h = this.$createElement;
+      this.$msgbox({
+        title: '消息',
+        message: h('p', null, "您确定要今天的打卡吗？"),
+        showCancelButton: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        beforeClose: (action, instance, done) => {
+          if (action === 'confirm') {
+            instance.confirmButtonLoading = true;
+            instance.confirmButtonText = '执行中...';
+
+            withdrawTodayClockIn(this.oneClockInData.id, this.$store.state.token).then(data => {
+              if (data.success) {
+                that.$message({type: 'success', message: '撤回成功', showClose: true});
+                this.$router.go(0)
+              } else {
+                instance.confirmButtonLoading = false;
+                instance.confirmButtonText = '确定';
+                that.$message({type: 'error', message: data.message, showClose: true})
+              }
+            }).catch(error => {
+              instance.confirmButtonLoading = false;
+              instance.confirmButtonText = '确定';
+              if (error !== 'error') {
+                console.log(error);
+                that.$message({type: 'error', message: error, showClose: true})
+              }
+            });
+          } else {
+            done();
+          }
+        }
+      })
+    }
   }
 }
 </script>
@@ -118,4 +158,10 @@ export default {
 .box-card {
   width: 600px;
 }
+.el-button-clock-in {
+  position: absolute;
+  right: 1%;
+  margin-top: -5px;
+}
+
 </style>

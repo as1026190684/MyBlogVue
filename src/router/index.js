@@ -40,7 +40,7 @@ const router = new Router({
     },
     {
       path: '',
-      name: 'Home',
+      // name: 'Home',
       component: Home,
       children: [
         {
@@ -87,7 +87,11 @@ const router = new Router({
     },
     {
       path: '/login',
-      component: r => require.ensure([], () => r(require('@/views/Login')), 'login')
+      component: r => require.ensure([], () => r(require('@/views/Login')), 'login'),
+    },
+    {
+      path: '/forgetPassword',
+      component: r => require.ensure([], () => r(require('@/views/ForgetPassword')), 'forgetPassword'),
     },
     {
       path: '/register',

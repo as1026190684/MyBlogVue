@@ -86,9 +86,7 @@
                   ></mission-planning>
                 </span>
                 <span slot="footer" class="dialog-footer">
-                  <el-tooltip class="item" effect="dark" content="读取刷新网页前填写内容" placement="top">
-                    <el-button style="width: 70px;height: 40px" type="primary" @click="queryPlanCache()">查询</el-button>
-                  </el-tooltip>
+
                   <el-tooltip  class="item" effect="dark" content="暂时提交以免刷新网页后丢失，最终提交需要再点击打卡" placement="top">
                     <el-button style="width: 70px;height: 40px" type="primary" @click="dialogVisible =false;putPlanToRedis()">确 定</el-button>
                   </el-tooltip>
@@ -200,28 +198,7 @@ export default {
     },
   },
   methods: {
-    queryPlanCache() {
-      let that=this
-      if (this.$store.state.token === null) {
-        return  that.$message({type: 'error', message: '请先登录', showClose: true})
-      }
-      queryPlanCache(this.$store.state.token).then(data => {
-        if (data.success) {
-          this.$refs.MissionPlanning.clearTasks();
-          for (let item of data.data) {
-            this.$refs.MissionPlanning.tasksPush(item);
-          }
-          that.$message({type: 'success', message: '暂存成功', showClose: true});
-        } else {
-          that.$message({type: 'error', message: data.message, showClose: true})
-        }
-      }).catch(error => {
-        if (error !== 'error') {
-          console.log(error);
-          that.$message({type: 'error', message: error, showClose: true})
-        }
-      });
-    },
+
 
     putPlanToRedis() {
       let that=this

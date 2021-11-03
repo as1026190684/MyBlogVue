@@ -2,9 +2,9 @@
   <div class="block" >
     <span class="demonstration">
       <clock-item
-        v-for="(i,index)  in currentPageDataArr"
+        v-for="(item,index)  in currentPageDataArr"
         :key="index"
-        :oneClockInData="i">
+        :oneClockInData="item">
       </clock-item>
     </span>
 
@@ -48,19 +48,16 @@ export default {
     this.setCurrentPageData();
   },
   mounted() {
-    // console.log("pageAllClockIn:" + this.allClockInDataArr);
 
   },
   methods: {
     setCurrentPageData() {
       let begin = (this.currentPage - 1) * this.pageSize;
       let end = this.currentPage * this.pageSize;
-       // console.log("pageAllClockInDataArr:" + this.allClockInDataArr);
       this.currentPageDataArr = this.allClockInDataArr.slice(
         begin,
         end
       );
-        // console.log("pageCurrentPage:" + this.currentPageDataArr);
     },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);

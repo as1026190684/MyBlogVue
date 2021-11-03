@@ -2,10 +2,10 @@ import App from './App'
 // import Vue from 'vue'
 // import Router from 'vue-router'
 import router from './router'
-import ELEMENT from 'element-ui'
+// import ELEMENT from 'element-ui'
 import store from './store'
 import lodash from 'lodash'
-import '@/assets/theme/index.css'
+// import '@/assets/theme/index.css'
 import '@/assets/icon/iconfont.css'
 import {formatTime} from "./utils/time";
 

@@ -1,7 +1,7 @@
 import Vuex from 'vuex'
 import Vue from 'vue'
 import {getToken, setToken, removeToken} from '@/request/token'
-import {login, getUserInfo, logout, register} from '@/api/login'
+import {login, getUserInfo, logout, register, changePassword, getVerifyNumber} from '@/api/login'
 
 Vue.use(Vuex);
 
@@ -39,7 +39,35 @@ export default new Vuex.Store({
             setToken(data.data)
             resolve()
           }else{
-            reject(data.msg)
+            reject(data.message)
+          }
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    changePassword({commit}, user) {
+      return new Promise((resolve, reject) => {
+        changePassword(user.account, user.password,user.mobilePhoneNumber,user.verifyNumber).then(data => {
+          if(data.success){
+            commit('SET_TOKEN', data.data)
+            setToken(data.data)
+            resolve(data)
+          }else{
+            reject(data)
+          }
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    getVerifyNumber({commit}, mobilePhoneNumber) {
+      return new Promise((resolve, reject) => {
+        getVerifyNumber(mobilePhoneNumber).then(data => {
+          if(data.success){
+            resolve(data)
+          }else{
+            reject(data)
           }
         }).catch(error => {
           reject(error)
@@ -114,13 +142,19 @@ export default new Vuex.Store({
     },
     register({commit}, user) {
       return new Promise((resolve, reject) => {
-        register(user.account, user.nickname, user.password,user.inviteCode).then((data) => {
+        register(user.account,
+          user.nickname,
+          user.password,
+          user.inviteCode,
+          user.mobilePhoneNumber,
+          user.verifyNumber).then((data) => {
+
           if(data.success){
             commit('SET_TOKEN', data.data)
             setToken(data.data)
             resolve()
           }else{
-            reject(data.msg)
+            reject(data.message)
           }
         }).catch((error) => {
           reject(error)

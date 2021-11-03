@@ -25,6 +25,7 @@
     },
     data() {
       return {
+        task: '',
         codeStyle:'monokai-sublime',//主题   mavon-editor.js自带的主题样式，不需要再次引入highlight.js
       }
     },

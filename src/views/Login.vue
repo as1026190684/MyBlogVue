@@ -13,7 +13,8 @@
         <el-form-item prop="password">
           <el-input placeholder="密码" type="password" v-model="userForm.password"></el-input>
         </el-form-item>
-
+<!--        <el-button type="text" @click.native.prevent="forgetPassword()" style="padding-left: 80%;margin-top: -20px">忘记密码</el-button>-->
+        <div type="text" style="padding-left: 80%;margin-top: -10px"><router-link  to="/forgetPassword" style="font-size:14px">忘记密码</router-link></div>
         <el-form-item size="small" class="me-login-button">
           <el-button type="primary" @click.native.prevent="login('userForm')">登录</el-button>
         </el-form-item>
@@ -61,6 +62,9 @@
             return false;
           }
         });
+      },
+      forgetPassword() {
+        this.$router.push({path: '/forgetPassword'})
       }
     }
   }

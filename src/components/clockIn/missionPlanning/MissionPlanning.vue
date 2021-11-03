@@ -18,20 +18,30 @@
     </ul>
     <form>
       <div class="form-group">
-        <label for="exampleInputEmail1">
-          任务描述
-        </label>
-        <textarea
-          type="text"
-          class="form-control"
-          placeholder="请输入你要添加的任务"
-          v-model="newTask"
-          required id="exampleInputEmail1"
-          style="word-break:break-all;"
-        />
-        <button class="btn btn-primary" type="submit" v-on:click="addTask" style="margin-top: 3px" >
-          添加任务
-        </button>
+        <el-row>
+          <label for="exampleInputEmail1">
+            任务描述
+          </label>
+        </el-row>
+        <el-row>
+          <el-col :md="17">
+             <textarea
+               type="text"
+               class="form-control"
+               placeholder="请输入你要添加的任务"
+               v-model="newTask"
+               required id="exampleInputEmail1"
+               style="word-break:break-all;"
+             />
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-button  type="submit" v-on:click="addTask" style="width: 70px;height: 40px;text-align: center;padding: 0 !important;">添加任务 </el-button>
+          <el-tooltip class="item" effect="dark" content="读取刷新网页前填写内容" placement="top">
+            <el-button style="width: 70px;height: 40px" type="primary" @click="queryPlanCache()">查询</el-button>
+          </el-tooltip>
+        </el-row>
+
 <!--        <el-collapse>-->
 <!--          <el-collapse-item title="一致性 Consistency" name="1">-->
 <!--            <div>与现实生活一致：与现实生活的流程、逻辑保持一致，遵循用户习惯的语言和概念；</div>-->
@@ -70,6 +80,7 @@
 
 <script>
 import appData from "@/assets/emoji/emojis.json";
+import {queryPlanCache} from "@/api/clockin";
 export default {
   name: "MissionPlanning",
   components: {
@@ -83,15 +94,37 @@ export default {
       getBrowString: "",
       content: [],
     tasks: [],
-      newTask: "程序员的修炼之道" //默认值
+      newTask: "" //默认值
   }},
   methods: {
 
+    queryPlanCache() {
+      let that=this
+      if (this.$store.state.token === null) {
+        return  that.$message({type: 'error', message: '请先登录', showClose: true})
+      }
+      queryPlanCache(this.$store.state.token).then(data => {
+        if (data.success) {
+          this.clearTasks();
+          for (let item of data.data) {
+            this.tasksPush(item);
+          }
+          that.$message({type: 'success', message: '查询成功', showClose: true});
+        } else {
+          that.$message({type: 'error', message: data.message, showClose: true})
+        }
+      }).catch(error => {
+        if (error !== 'error') {
+          that.$message({type: 'error', message: error, showClose: true})
+        }
+      });
+    },
     clearTasks() {
       this.tasks = [];
     },
     tasksPush(data) {
       this.tasks.push(data) ;
+      console.log(this.tasks);
     },
     // 表情
     faceContent() {
@@ -450,5 +483,9 @@ fieldset[disabled] .btn {
 .list-group-item + .list-group-item.active {
   margin-top: -1px;
   border-top-width: 1px;
+}
+.el-button--submit {
+  background-color: #554ff8;
+  color: white;
 }
 </style>

@@ -14,8 +14,10 @@
     </div>
 
     <el-card class="box-card">
-      <el-button v-if="oneClockInData.userId===this.$store.state.id" type="text" class="el-button-clock-in"
-      @click="withdrawTodayClockIn()">撤回</el-button>
+      <el-tooltip class="item" effect="dark" content="撤回后可点击每日规划里的查询获取回本条打卡记录内容" placement="top">
+        <el-button v-if="oneClockInData.userId===this.$store.state.id && this.splitCreateDateString()===this.getNowDate()" type="text" class="el-button-clock-in"
+        @click="withdrawTodayClockIn()">撤回</el-button>
+      </el-tooltip>
       <div v-for="(item,index) in oneClockInData.content" :key="index" class="text item">
         {{index+1+" . "}} {{item.text }}
       </div>
@@ -28,7 +30,7 @@
 </template>
 
 <script>
-import {getAllClockIn, pushClockInContent, withdrawTodayClockIn} from '@/api/clockin'
+import {withdrawTodayClockIn} from '@/api/clockin'
 
 export default {
   name: "ClockInItem",
@@ -51,7 +53,7 @@ export default {
     }
   },
   created() {
-
+    this.getNowDate()
   },
   mounted() {
   },
@@ -61,7 +63,7 @@ export default {
       const h = this.$createElement;
       this.$msgbox({
         title: '消息',
-        message: h('p', null, "您确定要今天的打卡吗？"),
+        message: h('p', null, "您确定要撤回今天的打卡吗？\n (撤回后可点击每日规划里的查询获取回本条打卡记录内容)"),
         showCancelButton: true,
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -69,9 +71,9 @@ export default {
           if (action === 'confirm') {
             instance.confirmButtonLoading = true;
             instance.confirmButtonText = '执行中...';
-
-            withdrawTodayClockIn(this.oneClockInData.id, this.$store.state.token).then(data => {
-              if (data.success) {
+            console.log(this.oneClockInData.id);
+            withdrawTodayClockIn(this.oneClockInData.id,this.oneClockInData.createDate, this.$store.state.token).then(data => {
+              if (data.success) {//todo 拿到返回的当天的打卡记录回显
                 that.$message({type: 'success', message: '撤回成功', showClose: true});
                 this.$router.go(0)
               } else {
@@ -92,6 +94,21 @@ export default {
           }
         }
       })
+    },
+    splitCreateDateString() {
+      //时间处理
+      return this.oneClockInData.createDate.split(" ")[0];
+    },
+    getNowDate() {
+      //时间处理
+      let nowDate = new Date();
+      const year= nowDate.getFullYear()
+      const month= nowDate.getMonth()+1
+      let day= nowDate.getDate()
+      if (day < 10) {
+        day='0' + day;
+      }
+      return year + '-' + month + '-' + day
     }
   }
 }

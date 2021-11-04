@@ -123,8 +123,10 @@ export default {
       this.tasks = [];
     },
     tasksPush(data) {
-      this.tasks.push(data) ;
-      console.log(this.tasks);
+      this.tasks.push({
+        text: data.text,
+        complete: false
+      });
     },
     // 表情
     faceContent() {

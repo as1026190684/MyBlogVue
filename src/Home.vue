@@ -50,7 +50,7 @@ export default {
 <style>
 
 .me-container {
-  margin: 100px auto 140px;
+  margin: 100px auto ;
 
 }
 

@@ -60,42 +60,33 @@
 
         <el-row :gutter="10" style="padding-top: 20px;padding-bottom: 20px; ">
           <el-col :md="12" style="margin-left:auto;margin-right:auto" class="flex1">
-<!--            <div>
-              <el-input
-                type="textarea"
-                :autosize="{ minRows: 2}"
-                placeholder="打卡内容..."
-                class="me-view-comment-text"
-                v-model="content.length"
-                resize="none">
-              </el-input>
-            </div>-->   <el-button type="primary" @click="dialogVisible = true" class="clickInButton">每日规划</el-button>
+            <el-button type="primary" @click="dialogVisible = true" class="clickInButton">每日规划</el-button>
           </el-col>
 
-            <el-col  :md="12" style="margin-left:auto;margin-right:auto" >
-              <el-dialog
-                title="每日规划"
-                :visible.sync="dialogVisible"
-                :modal-append-to-body='false'
-                width="70%">
-                <span>
-                  <!--                :before-close="handleClose"-->
-                  <mission-planning
-                    @pushTrueMission="pushTrueMission"
-                    @withdrawMission="withdrawMission"
-                  ></mission-planning>
-                </span>
-                <span slot="footer" class="dialog-footer">
+          <el-col  :md="12" style="margin-left:auto;margin-right:auto" >
+            <el-dialog
+              title="每日规划"
+              :visible.sync="dialogVisible"
+              :modal-append-to-body='false'
+              width="70%">
+              <span>
+                <!--                :before-close="handleClose"-->
+                <mission-planning
+                  @pushTrueMission="pushTrueMission"
+                  @withdrawMission="withdrawMission"
+                ></mission-planning>
+              </span>
+              <span slot="footer" class="dialog-footer">
 
-                  <el-tooltip  class="item" effect="dark" content="暂时提交以免刷新网页后丢失，最终提交需要再点击打卡" placement="top">
-                    <el-button style="width: 70px;height: 40px" type="primary" @click="dialogVisible =false;putPlanToRedis()">确 定</el-button>
-                  </el-tooltip>
-                </span>
-              </el-dialog>
+                <el-tooltip  class="item" effect="dark" content="暂时提交以免刷新网页后丢失，最终提交需要再点击打卡" placement="top">
+                  <el-button style="width: 70px;height: 40px" type="primary" @click="dialogVisible =false;putPlanToRedis()">确 定</el-button>
+                </el-tooltip>
+              </span>
+            </el-dialog>
 
 <!--              <dialog :dialog-visible="dialogVisible"></dialog>-->
-              <el-button type="primary" @click="submitContent()" class="clickInButton">打卡</el-button>
-            </el-col>
+            <el-button type="primary" @click="submitContent()" class="clickInButton">打卡</el-button>
+          </el-col>
         </el-row>
 
         <el-row :gutter="10" style="width: 600px;">

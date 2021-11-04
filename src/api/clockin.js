@@ -62,13 +62,14 @@ export function queryPlanCache(token) {
   })
 }
 
-export function withdrawTodayClockIn(id,token) {
-  const data = {
-    id
-  }
+export function withdrawTodayClockIn(clockInId,createDate,token) {
+  const data= {
+    clockInId,
+    createDate
+  };
   return request({
     headers: {'Authorization': token},
-    url: '/clockIn/withdrawTodayClockIn',
+      url: '/clockIn/withdrawTodayClockIn',
     method: 'post',
     data
   })

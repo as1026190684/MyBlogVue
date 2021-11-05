@@ -74,3 +74,9 @@ export function withdrawTodayClockIn(clockInId,createDate,token) {
     data
   })
 }
+export function getAllUserClockInCounts() {
+  return request({
+    url: `/clockIn/getAllUserClockInCounts`,
+    method: 'get',
+  })
+}

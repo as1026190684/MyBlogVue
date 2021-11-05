@@ -1,101 +1,139 @@
 <template>
   <div id="app">
-    <el-row :gutter="10" style="width: 600px;" class="center1">
-      <el-col :md="10" style="width: 600px;">
-        <div  style="width: 600px;height: 500px">
-          <div style="width: 600px;height: 500px;" class="bigBackground"></div>
-          <!--    标题、上月、下月-->
-          <div class="width-100-per layout-side" style="height: 10%;">
-            <div class="cursor-pointer layout-center leftRightBtn" @click="prevMonth" style="font-size: 30px">&lt;</div>
-            <div class="height-100-per layout-center-top width-40-per">
-              <div class="layout-center">
-                <span style="font-weight: bold;padding-top: 8px;font-size: 20px">{{`${newDate.split('-')[0]}年${newDate.split('-')[1]}月`}}</span>
-              </div>
-            </div>
-            <div class="cursor-pointer layout-center leftRightBtn" @click="nextMonth" style="font-size: 30px">&gt;</div>
-          </div>
-          <!--    日期表-->
-          <div class="width-100-per layout-left-top padding-10-px" style="height: calc(100% - 10%)">
-            <!--      星期-->
-            <div class="width-100-per layout-left-top" style="height: 10%">
-              <div style="width: calc(100% / 7);" class="layout-center" v-for="(i,index) in weekArr" :key="index + i">{{i}}
-              </div>
-            </div>
-            <!--      日期-->
-            <div class="width-100-per layout-left-top" style="height: 90%">
-              <template v-for="(i,index) in dateArr">
-                <div class="layout-center tableCol" :style="{height: 'calc(100% / '+maxTableRow+')'}" :key="index"
-                     :class="{'topBorderNone':index<7,'rightBorderNone':(index+8)%7===0}" @click="getOneDayPlan(i)? OneDayPlanDialogVisible = true : OneDayPlanDialogVisible = false">
-                  <!--小圆圈背景 -->
-                  <div v-if="!showDayStatus(i)" class="miniBackground"></div>
-                  <!--   判断是否需要设置非本月日期的背景 -->
-                  <div v-if="showDayStatus(i)" class="checkBadge" ></div>
-                  <!--                  签过到的日期-->
-                  <div v-else  :class="clockInYesMethod(i)" style=""></div>
-                  <div :title="i" class="width-100-per height-100-per layout-center " :class="[{'checked':i===thisDate}]" style="cursor:pointer;position: relative">
-                    <span style="font-size: 20px;"  >{{i === '' ? '' : Number(i.split('-')[2])}}</span>
+
+    <el-card class="box-card">
+      <el-row :gutter="10" style="padding-top: 20px;padding-bottom: 20px; ">
+        <el-col :md="6" style="margin-left:0;margin-right:0" class="flex1">
+          <el-popover
+            placement="bottom-start"
+            title=""
+            width="600"
+            trigger="manual"
+            v-model="visible1">
+
+            <el-row :gutter="10" style="width: 600px;" class="center1">
+              <el-col :md="10" style="width: 600px;">
+                <div  style="width: 600px;height: 500px">
+                  <div style="width: 600px;height: 500px;" class="bigBackground"></div>
+                  <!--    标题、上月、下月-->
+                  <div class="width-100-per layout-side" style="height: 10%;">
+                    <div class="cursor-pointer layout-center leftRightBtn" @click="prevMonth" style="font-size: 30px">&lt;</div>
+                    <div class="height-100-per layout-center-top width-40-per">
+                      <div class="layout-center">
+                        <span style="font-weight: bold;padding-top: 8px;font-size: 20px">{{`${newDate.split('-')[0]}年${newDate.split('-')[1]}月`}}</span>
+                      </div>
+                    </div>
+                    <div class="cursor-pointer layout-center leftRightBtn" @click="nextMonth" style="font-size: 30px">&gt;</div>
+                  </div>
+                  <!--    日期表-->
+                  <div class="width-100-per layout-left-top padding-10-px" style="height: calc(100% - 10%)">
+                    <!--      星期-->
+                    <div class="width-100-per layout-left-top" style="height: 10%">
+                      <div style="width: calc(100% / 7);" class="layout-center" v-for="(i,index) in weekArr" :key="index + i">{{i}}
+                      </div>
+                    </div>
+                    <!--      日期-->
+                    <div class="width-100-per layout-left-top" style="height: 90%">
+                      <template v-for="(i,index) in dateArr">
+                        <div class="layout-center tableCol" :style="{height: 'calc(100% / '+maxTableRow+')'}" :key="index"
+                             :class="{'topBorderNone':index<7,'rightBorderNone':(index+8)%7===0}" @click="getOneDayPlan(i)? OneDayPlanDialogVisible = true : OneDayPlanDialogVisible = false">
+                          <!--小圆圈背景 -->
+                          <div v-if="!showDayStatus(i)" class="miniBackground"></div>
+                          <!--   判断是否需要设置非本月日期的背景 -->
+                          <div v-if="showDayStatus(i)" class="checkBadge" ></div>
+                          <!--                  签过到的日期-->
+                          <div v-else  :class="clockInYesMethod(i)" style=""></div>
+                          <div :title="i" class="width-100-per height-100-per layout-center " :class="[{'checked':i===thisDate}]" style="cursor:pointer;position: relative">
+                            <span style="font-size: 20px;"  >{{i === '' ? '' : Number(i.split('-')[2])}}</span>
+                          </div>
+                        </div>
+                      </template>
+                      <el-dialog
+                        title="当日规划"
+                        :visible.sync="OneDayPlanDialogVisible"
+                        :modal-append-to-body='false'
+                        width="50%"
+                      >
+                    <span>
+                      <mission-planning-one-day-plan
+                        ref="OneDayPlanDialog"
+                      ></mission-planning-one-day-plan>
+                    </span>
+                        <span slot="footer" class="dialog-footer">
+                  <el-button type="primary" @click="OneDayPlanDialogVisible =false;">确 定</el-button>
+                  </span>
+                      </el-dialog>
+                    </div>
                   </div>
                 </div>
-              </template>
-              <el-dialog
-                title="当日规划"
-                :visible.sync="OneDayPlanDialogVisible"
-                :modal-append-to-body='false'
-                width="50%"
-                >
-                  <span>
-                    <mission-planning-one-day-plan
-                      ref="OneDayPlanDialog"
-                    ></mission-planning-one-day-plan>
-                  </span>
-                <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="OneDayPlanDialogVisible =false;">确 定</el-button>
-                </span>
-              </el-dialog>
+              </el-col>
+            </el-row>
+
+            <el-button type="primary" slot="reference" @click="visible1 = !visible1" class="clickInButton">回忆往昔</el-button>
+          </el-popover>
+        </el-col>
+
+        <el-col :md="6" style="margin-left:0;margin-right:0;float: right" class="">
+          <el-button type="primary" @click="dialogVisible = true" class="clickInButton">每日规划</el-button>
+        </el-col>
+        <el-dialog
+          title="每日规划"
+          :visible.sync="dialogVisible"
+          :modal-append-to-body='false'
+          width="70%"
+          >
+            <span>
+              <!--                :before-close="handleClose"-->
+              <mission-planning
+                @pushTrueMission="pushTrueMission"
+                @withdrawMission="withdrawMission"
+              ></mission-planning>
+            </span>
+          <span slot="footer" class="dialog-footer">
+
+              <el-tooltip  class="item" effect="dark" content="暂时提交以免刷新网页后丢失，最终提交需要再点击打卡" placement="top">
+                <el-button style="width: 70px;height: 40px" type="primary" @click="dialogVisible =false;putPlanToRedis()">确 定</el-button>
+              </el-tooltip>
+            </span>
+        </el-dialog>
+      </el-row>
+
+      <el-row :gutter="10" style="padding-top: 10px;padding-bottom: 10px; ">
+        <el-col :md="6" style="margin-left:0;margin-right:100px" class="flex1">
+          <el-popover
+            placement="bottom-start"
+            title="所有人的打卡排名"
+            width="550"
+            trigger="manual"
+            v-model="visible2">
+
+            <div v-for="(item,index) in allUserClockInCountsArr">
+              <el-progress-clock-in
+                :percentage="item.counts"
+                :status="index"
+                :uname="item.nickName"
+              style="margin: 7px 0">
+              </el-progress-clock-in>
             </div>
-          </div>
-        </div>
-      </el-col>
+            <el-button type="primary" slot="reference" @click="visible2 = !visible2;getAllUserClockInCounts()" class="clickInButton">日积月累</el-button>
+          </el-popover>
+        </el-col>
+        <el-col  :md="6" style="margin-left:100px;margin-right:0;float: right" >
+  <!--              <dialog :dialog-visible="dialogVisible"></dialog>-->
+          <el-button type="primary" @click="submitContent()" class="clickInButton">今日打卡</el-button>
+        </el-col>
+
+      </el-row>
+      <img  src="http://static.ytte.top/WebSite.png" class="avatar">
+    </el-card>
+
+    <el-row :gutter="10" style="min-width: 500px;max-width: 600px">
+      <div v-if="loadingPage">
+        <pagination
+        :allClockInDataArr="allClockInArr">
+        </pagination>
+      </div>
     </el-row>
-
-        <el-row :gutter="10" style="padding-top: 20px;padding-bottom: 20px; ">
-          <el-col :md="12" style="margin-left:auto;margin-right:auto" class="flex1">
-            <el-button type="primary" @click="dialogVisible = true" class="clickInButton">每日规划</el-button>
-          </el-col>
-
-          <el-col  :md="12" style="margin-left:auto;margin-right:auto" >
-            <el-dialog
-              title="每日规划"
-              :visible.sync="dialogVisible"
-              :modal-append-to-body='false'
-              width="70%">
-              <span>
-                <!--                :before-close="handleClose"-->
-                <mission-planning
-                  @pushTrueMission="pushTrueMission"
-                  @withdrawMission="withdrawMission"
-                ></mission-planning>
-              </span>
-              <span slot="footer" class="dialog-footer">
-
-                <el-tooltip  class="item" effect="dark" content="暂时提交以免刷新网页后丢失，最终提交需要再点击打卡" placement="top">
-                  <el-button style="width: 70px;height: 40px" type="primary" @click="dialogVisible =false;putPlanToRedis()">确 定</el-button>
-                </el-tooltip>
-              </span>
-            </el-dialog>
-
-<!--              <dialog :dialog-visible="dialogVisible"></dialog>-->
-            <el-button type="primary" @click="submitContent()" class="clickInButton">打卡</el-button>
-          </el-col>
-        </el-row>
-
-        <el-row :gutter="10" style="width: 600px;">
-          <div v-if="loadingPage">
-            <pagination
-            :allClockInDataArr="allClockInArr">
-            </pagination>
-          </div>
-        </el-row>
 
   </div>
 
@@ -109,12 +147,13 @@ import {
   getIndividualClockIn,
   getOneDayPlan,
   putPlanToRedis,
-  queryPlanCache
+  queryPlanCache, getAllUserClockInCounts
 } from '@/api/clockin'
 import Pagination  from '@/components/pagination/Pagination'
 import Dialog from '@/components/clockIn/missionPlanning/Dialog';
 import MissionPlanning from '@/components/clockIn/missionPlanning/MissionPlanning';
 import MissionPlanningOneDayPlan from '@/components/clockIn/missionPlanning/MissionPlanningOneDayPlan'
+import elProgressClockIn from '@/components/clockIn/elProgressClockIn';
 
 export default {
   name: "ClockIn",
@@ -122,11 +161,24 @@ export default {
     Pagination,
     Dialog,
     MissionPlanning,
-    MissionPlanningOneDayPlan
+    MissionPlanningOneDayPlan,
+    elProgressClockIn
   },
 
   data() {
     return {
+      isOpenOperator: true,
+      progressStatus:[" ","success","warning","exception"],
+      allUserClockInCountsArr: [{
+        nickName:"",
+        counts: 0
+      }],
+      stamp: {
+        userId: '',
+        counts: 0
+      },
+      visible1: false, //按钮弹窗
+      visible2: false, //按钮弹窗
       isDisabled: 'disabled',
       userId: this.$store.state.id,
       dialogVisible: false,
@@ -158,6 +210,7 @@ export default {
     this.getIndividualClockInMethod();
   },
   computed: {
+
     //判断当天状态
     showDayStatus() {
       const that = this;
@@ -189,7 +242,39 @@ export default {
     },
   },
   methods: {
-
+    percentageSinceBegin() {
+      let time1 = Date.parse(new Date('2021-11-1'));
+      let time2 = Date.parse(new Date());
+      let nDays = Math.abs(parseInt((time2 - time1) / 1000 / 3600 / 24));
+      return nDays;
+    },
+    getAllUserClockInCounts() {
+      let that = this;
+      //阻止日积月累按钮第二次点击重复发送后端请求
+      if (!that.isOpenOperator) {
+        that.isOpenOperator = true;
+        return null;
+      } else {
+        that.isOpenOperator = false;
+      }
+      getAllUserClockInCounts().then(data => {
+        if (data.success) {
+          that.allUserClockInCountsArr=data.data;
+          console.log(that.allUserClockInCountsArr);
+          that.stamp.nickName='总天数'
+          that.stamp.counts=that.percentageSinceBegin()
+          that.allUserClockInCountsArr.unshift(that.stamp)
+          console.log(that.allUserClockInCountsArr);
+        } else {
+          that.$message({type: 'error', message: data.message, showClose: true})
+        }
+      }).catch(error => {
+        if (error !== 'error') {
+          console.log(error);
+          that.$message({type: 'error', message: error, showClose: true})
+        }
+      });
+    },
 
     putPlanToRedis() {
       let that=this
@@ -641,6 +726,25 @@ body > .el-container {
 
 .el-container:nth-child(7) .el-aside {
   line-height: 320px;
+}
+.box-card {
+  min-width: 550px;
+  max-width: 600px;
+  padding: 1px 20px;
+}
+.avatar {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  display: block;
+  margin: -145px 0px 0px 210px;
+  border-radius: 50%;
+}
+.el-popover {
+  border-radius: 7% !important;
+}
+.el-progress-clock-in {
+  width: ;
 }
 
 </style>

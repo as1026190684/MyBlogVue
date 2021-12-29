@@ -61,6 +61,9 @@
         </el-container>
       </el-container>
 
+
+
+
     </div>
 
   </div>
@@ -106,7 +109,6 @@ name: "PersonalCenter",
       getArticlesByUserId(this.$store.state.id).then(data => {
         if (data.success) {
           that.ownBlogNameArr = data.data;
-          console.log(that.ownBlogNameArr);
         }
       }).catch(error => {
         if (error !== 'error') {
@@ -179,12 +181,12 @@ name: "PersonalCenter",
     // 上传前格式和图片大小限制
     beforeAvatarUpload(file) {
       const type = file.type === 'image/jpeg' || 'image/jpg' || 'image/webp' || 'image/png'
-      const isLt2M = file.size / 1024 / 1024 < 2
+      const isLt2M = file.size / 1024 / 1024 < 10
       if (!type) {
         this.$message.error('图片格式不正确!(只能包含jpg，png，webp，JPEG)')
       }
       if (!isLt2M) {
-        this.$message.error('上传图片大小不能超过 2MB!')
+        this.$message.error('上传图片大小不能超过 10MB!')
       }
       return type && isLt2M
     }

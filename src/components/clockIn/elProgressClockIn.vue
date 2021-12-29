@@ -1,6 +1,7 @@
 <template>
 <!--  <div class="elProgressClockIn">-->
   <div class="el-form-item-style">
+
     <span class="text-left">{{ uname }}：</span>
     <div class="el-progress-clock-in-div">
       <div :style="{width: percentage365 + '%',backgroundColor: 'rgb'+ colorArr[around]}"></div>
@@ -12,10 +13,12 @@
 </template>
 
 <script>
+import {getCountDays} from "@/utils/time";
 export default {
 name: "elProgressClockIn",
   data() {
     return {
+
       colorArr: [
         '(32, 200, 222)',
         '(9, 233, 128)',
@@ -25,6 +28,11 @@ name: "elProgressClockIn",
     };
   },
   props: {
+    percentageAllDate:{
+      type: Number,
+      default: 0,
+      required: true,
+    },
     percentage:{
       type: Number,
       default: 0,
@@ -49,11 +57,13 @@ name: "elProgressClockIn",
       }
     },
     percentage365(){
-      let time1 = Date.parse(new Date('2021-11-1'));
-      let time2 = Date.parse(new Date());
-      let nDays = Math.abs(parseInt((time2 - time1) / 1000 / 3600 / 24));
-      let i = this.percentage / nDays * 100;
-      return i
+      let i
+      if (this.uname === "总天数") {
+        i = this.percentage / this.percentage * 100;
+      } else {
+        i= this.percentage / this.percentageAllDate * 100;
+      }
+      return i;
     }
   }
 }

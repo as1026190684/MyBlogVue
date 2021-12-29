@@ -19,7 +19,8 @@ module.exports = {
     'element-ui': 'ELEMENT',
     // lodash:"lodash",
     "vuex":"Vuex",
-    "jquery":"jQuery"
+    "jquery": "jQuery",
+    'echarts': 'echarts'
 
   },
   context: path.resolve(__dirname, '../'),

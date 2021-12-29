@@ -74,9 +74,43 @@ export function withdrawTodayClockIn(clockInId,createDate,token) {
     data
   })
 }
-export function getAllUserClockInCounts() {
+export function getAllUserTheMonthClockInCounts(monthStart,monthEnd) {
   return request({
-    url: `/clockIn/getAllUserClockInCounts`,
+    url: `/clockIn/getAllUserTheMonthClockInCounts`,
     method: 'get',
+    params:{
+      monthStart: monthStart,
+      monthEnd: monthEnd
+    }
+  })
+}
+export function getCurrentMonthAllUserClockInCounts() {
+  return request({
+    url: `/clockIn/getCurrentMonthAllUserClockInCounts`,
+    method: 'get',
+  })
+}
+export function getOneDayStudyRecords(token,oneDayTime) {
+  const data = {
+    token,
+    oneDayTime
+  }
+  return request({
+    headers: {'Content-Type': 'application/json;charset=UTF-8'},
+    url: '/clockIn/getOneDayStudyRecords',
+    method: 'post',
+    data
+  })
+}
+export function getMonthsStudyRecords(token,months) {
+  const data = {
+    token,
+    months
+  }
+  return request({
+    headers: {'Content-Type': 'application/json;charset=UTF-8'},
+    url: '/clockIn/getMonthsStudyRecords',
+    method: 'post',
+    data
   })
 }

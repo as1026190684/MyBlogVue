@@ -107,15 +107,31 @@
             trigger="manual"
             v-model="visible2">
 
-            <div v-for="(item,index) in allUserClockInCountsArr">
+            <div class="block">
+              <span class="demonstration">选择月份进行查询</span>
+              <el-date-picker
+                v-model="monthValue"
+                align="center"
+                type="month"
+                @change="getAllUserClockInCounts($event)"
+                value-format="yyyy-MM-dd"
+                placeholder="选择月">
+              </el-date-picker>
+            </div>
+
+            <div v-for="(item,index) in allUserClockInCountsArr" >
               <el-progress-clock-in
                 :percentage="item.counts"
+                :percentageAllDate="percentageAllDate"
                 :status="index"
                 :uname="item.nickName"
               style="margin: 7px 0">
               </el-progress-clock-in>
             </div>
-            <el-button type="primary" slot="reference" @click="visible2 = !visible2;getAllUserClockInCounts()" class="clickInButton">日积月累</el-button>
+<!--            {{showCurrentMonthAllUserClockInCounts()}}-->
+            <el-button type="primary" slot="reference"
+                       @click="visible2 = !visible2;isOpenOperatorMethod(new Date(new Date().getFullYear(),new Date().getMonth(),1))"
+                       class="clickInButton">日积月累</el-button>
           </el-popover>
         </el-col>
         <el-col  :md="6" style="margin-left:100px;margin-right:0;float: right" >
@@ -124,7 +140,30 @@
         </el-col>
 
       </el-row>
-      <img  src="http://static.ytte.top/WebSite.png" class="avatar">
+      <el-popover
+        placement="bottom-start"
+        title="---学习记录---"
+        width="550"
+        trigger="manual"
+        v-model="visible3">
+<!--        <my-datepicker
+          :date="startTime"
+          :option="option"
+          :limit="limit"
+          id="select_date"
+          date/>-->
+
+          <el-progress-clock-in3
+            ref="son"
+            style="margin: 7px 0">
+          </el-progress-clock-in3>
+<!--        :learningRecords="oneDayStudyRecords.learningRecords"-->
+<!--        :learningDurationTime="oneDayStudyRecords.learningDurationTime"-->
+<!--        :createDate="oneDayStudyRecords.createDate"-->
+<!--        :key="oneDayStudyRecords.id"-->
+
+      </el-popover>
+      <img  src="http://static.ytte.top/WebSite.png" class="avatar-clock-in" @click="visible3 = !visible3;getStudyRecords();">
     </el-card>
 
     <el-row :gutter="10" style="min-width: 500px;max-width: 600px">
@@ -140,6 +179,7 @@
 </template>
 
 <script>
+// import myDatepicker from 'vue-datepicker/vue-datepicker-es6.vue';
 import moment from 'moment'
 import {
   getAllClockIn,
@@ -147,13 +187,17 @@ import {
   getIndividualClockIn,
   getOneDayPlan,
   putPlanToRedis,
-  queryPlanCache, getAllUserClockInCounts
+  queryPlanCache,
+  getAllUserTheMonthClockInCounts,
+  getCurrentMonthAllUserClockInCounts, getOneDayStudyRecords
 } from '@/api/clockin'
 import Pagination  from '@/components/pagination/Pagination'
 import Dialog from '@/components/clockIn/missionPlanning/Dialog';
 import MissionPlanning from '@/components/clockIn/missionPlanning/MissionPlanning';
 import MissionPlanningOneDayPlan from '@/components/clockIn/missionPlanning/MissionPlanningOneDayPlan'
 import elProgressClockIn from '@/components/clockIn/elProgressClockIn';
+import {getCountDays} from "@/utils/time";
+import ElProgressClockIn3 from "@/components/clockIn/ElProgressClockIn3";
 
 export default {
   name: "ClockIn",
@@ -162,23 +206,31 @@ export default {
     Dialog,
     MissionPlanning,
     MissionPlanningOneDayPlan,
-    elProgressClockIn
+    elProgressClockIn,
+    ElProgressClockIn3,
+    // myDatepicker
   },
 
   data() {
     return {
+      percentageAllDate: 0,
+      monthValue: '',
+      currentMonthDays: 0,
       isOpenOperator: true,
       progressStatus:[" ","success","warning","exception"],
       allUserClockInCountsArr: [{
         nickName:"",
         counts: 0
       }],
+
       stamp: {
-        userId: '',
+        nickName: '',
         counts: 0
       },
+      isClock: true,
       visible1: false, //按钮弹窗
       visible2: false, //按钮弹窗
+      visible3: false, //按钮弹窗
       isDisabled: 'disabled',
       userId: this.$store.state.id,
       dialogVisible: false,
@@ -242,13 +294,66 @@ export default {
     },
   },
   methods: {
-    percentageSinceBegin() {
-      let time1 = Date.parse(new Date('2021-11-1'));
-      let time2 = Date.parse(new Date());
-      let nDays = Math.abs(parseInt((time2 - time1) / 1000 / 3600 / 24));
+    getStudyRecords() {
+      if (this.isClock) {
+        this.$nextTick(() => {
+          this.isClock = false;
+          this.$refs.son.getOneDayStudyRecords(this.dealTime(3));
+          this.$refs.son.initMonthsStudyRecords();
+        })
+      } else {
+        this.isClock = true;
+      }
+    },
+
+    //  今天昨天明天时间处理 v==3为昨天。v==6为今天。v==9为明天
+    dealTime(v){
+      let b = 24*60*60*1000   //一天的时间
+      let day = new Date();  //当天的时间
+
+      v === 3 ? day.setTime(day.getTime()-b) : v === 6 ?
+        day.setTime(day.getTime()) : day.setTime(day.getTime() + b);
+
+      let dayMon=(day.getMonth() + 1) >= 10 ? day.getMonth()+1 : '0' + (day.getMonth() + 1)
+      let dayDat=(day.getDate() + 1) >= 10 ? day.getDate() : '0' + (day.getDate())
+
+      let s = day.getFullYear() + "-" + dayMon + "-" + dayDat;
+      return s;
+    },
+    showCurrentMonthAllUserClockInCounts() {
+      this.currentMonthDays = getCountDays();
+      let myDate = new Date();
+      let currentMonthCurrentDay= myDate.getDate();
+      getCurrentMonthAllUserClockInCounts((data) => {
+
+      });
+      return this.currentMonthDays
+    },
+    percentageSinceBegin(value) {
+      let chooseYear = new Date(value).getFullYear();
+      let chooseMonth = new Date(value).getMonth()+1;
+
+      let thisYear =new Date().getFullYear();
+      let thisMonth = new Date().getMonth()+1;
+
+      let nDays;
+      if (chooseYear < thisYear ) {
+        nDays = new Date(chooseYear, chooseMonth, 0).getDate();
+      } else if (chooseYear > thisYear ) {
+        nDays = 0;
+      }else if (chooseYear === thisYear ) {
+        if (chooseMonth < thisMonth) {
+          nDays = new Date(chooseYear, chooseMonth, 0).getDate();
+        } else if (chooseMonth > thisMonth) {
+          nDays = 0;
+        } else if (chooseMonth === thisMonth) {
+          nDays = new Date().getDate();
+        }
+      }
+      this.percentageAllDate = nDays;
       return nDays;
     },
-    getAllUserClockInCounts() {
+    isOpenOperatorMethod(value) {
       let that = this;
       //阻止日积月累按钮第二次点击重复发送后端请求
       if (!that.isOpenOperator) {
@@ -257,21 +362,48 @@ export default {
       } else {
         that.isOpenOperator = false;
       }
-      getAllUserClockInCounts().then(data => {
+      this.getAllUserClockInCounts(value);
+    },
+    getAllUserClockInCounts(value) {
+      let that = this;
+
+      let chooseYear =new Date(value).getFullYear();
+      let chooseMonth = new Date(value).getMonth()+1;
+      let chooseDay = 1;
+
+      if (chooseMonth >= 12) {
+        chooseYear += 1;
+        chooseMonth = 1;
+      } else {
+        chooseMonth += 1;
+      }
+
+      let monthEnd;
+      if (chooseMonth < 10) {
+        monthEnd = chooseYear + "-0" + chooseMonth + "-0" + chooseDay;
+      } else {
+        monthEnd = chooseYear + "-" + chooseMonth + "-0" + chooseDay;
+      }
+
+      getAllUserTheMonthClockInCounts(value,monthEnd).then(data => {
         if (data.success) {
           that.allUserClockInCountsArr=data.data;
-          console.log(that.allUserClockInCountsArr);
+
           that.stamp.nickName='总天数'
-          that.stamp.counts=that.percentageSinceBegin()
+          that.stamp.counts=that.percentageSinceBegin(value)
+
           that.allUserClockInCountsArr.unshift(that.stamp)
           console.log(that.allUserClockInCountsArr);
+
+
         } else {
           that.$message({type: 'error', message: data.message, showClose: true})
         }
       }).catch(error => {
-        if (error !== 'error') {
-          console.log(error);
-          that.$message({type: 'error', message: error, showClose: true})
+        if (error==="无打卡记录") {
+          that.$message({type: 'warning', message: error, showClose: true});
+        } else if (error !== 'error') {
+          that.$message({type: 'error', message: error, showClose: true});
         }
       });
     },
@@ -281,7 +413,7 @@ export default {
       if (this.$store.state.token.length === 0) {
         return  that.$message({type: 'error', message: '请先登录', showClose: true})
       }
-      console.log(that.contentCache);
+
       if (that.contentCache.length === 0) {
         return that.$message({type: 'error', message: '内容为空不能暂存哦~~~', showClose: true})
       }
@@ -293,7 +425,7 @@ export default {
         }
       }).catch(error => {
         if (error !== 'error') {
-          console.log(error);
+
           that.$message({type: 'error', message: error, showClose: true})
         }
       });
@@ -303,8 +435,7 @@ export default {
         this.contentCache = value;
       }
       this.contentCache.push(value);
-      //  console.log("submit   "+this.taskIndex);
-      // console.log("submit  "+this.contentCache.length);
+
     },
 
     withdrawMission(value) {
@@ -315,8 +446,7 @@ export default {
           _contentCache.splice(index, 1);
         }
       })
-      // console.log("withdraw    "+this.taskIndex);
-      // console.log("withdraw  "+this.contentCache.length);
+
     },
 
     getAllClockInMethod: function () {
@@ -332,7 +462,7 @@ export default {
         }
       }).catch(error => {
         if (error !== 'error') {
-          console.log(error);
+
           that.$message({type: 'error', message: error, showClose: true})
         }
       });
@@ -340,7 +470,7 @@ export default {
 
     submitContent(textData) {
       let that = this
-      console.log(that.contentCache);
+
       if (that.contentCache.length < 1) {
         this.$message({
           message: '您的计划为空 或 未点击规划确定按钮(*^▽^*)',
@@ -374,7 +504,7 @@ export default {
               }
             }).catch(error => {
               if (error !== 'error') {
-                console.log(error);
+
                 that.$message({type: 'error', message: error, showClose: true})
               }
             });
@@ -400,11 +530,11 @@ export default {
         that.$message({type: "warning", message: '日期不能为空哦！(*^▽^*)', showClose: true});
         return false;
       }
-      // console.log("value   ="+ value);
+
       for (let ca of that.checkArr) {
-        // console.log("for   ="+ ca);
+
         if ((ca).indexOf(value) > -1) {
-          // console.log("ca   =" + ca);
+
           getOneDayPlan(this.$store.state.token, value).then(data => {
             if (data.success) {
               that.oneDayTimeArr = data.data.content;
@@ -496,7 +626,9 @@ export default {
 /*.el-dialog__header, .el-dialog__body, .el-dialog__footer{*/
 /*  max-width: 600px !important;*/
 /*}*/
-
+.is-selected {
+  color: #1989FA;
+}
 .el-button--primary {
   background-color: #554ff8;
 }
@@ -732,7 +864,7 @@ body > .el-container {
   max-width: 600px;
   padding: 1px 20px;
 }
-.avatar {
+.avatar-clock-in {
   position: absolute;
   width: 120px;
   height: 120px;
@@ -742,9 +874,6 @@ body > .el-container {
 }
 .el-popover {
   border-radius: 7% !important;
-}
-.el-progress-clock-in {
-  width: ;
 }
 
 </style>

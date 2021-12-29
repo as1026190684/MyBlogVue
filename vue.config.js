@@ -17,6 +17,7 @@
         // "lodash":"lodash",
         "vuex":"Vuex",
         "jquery": "jQuery",
+        'echarts': 'echarts'
       }
     }
   }

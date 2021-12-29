@@ -10,6 +10,8 @@ import '@/assets/icon/iconfont.css'
 import {formatTime} from "./utils/time";
 
 
+// Vue.prototype.$echarts = echarts;
+
 
 Vue.config.productionTip = false
 // Vue.use(ElementUI)

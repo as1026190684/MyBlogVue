@@ -23,9 +23,6 @@
       </div>
     </el-card>
 
-<!--    <div>-->
-<!--      <p class="me-view-comment-content">{{oneClockInData.content}}</p>-->
-<!--    </div>-->
   </div>
 </template>
 

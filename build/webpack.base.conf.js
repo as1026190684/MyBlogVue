@@ -18,7 +18,7 @@ module.exports = {
     'axios': 'axios',
     'element-ui': 'ELEMENT',
     // lodash:"lodash",
-    "vuex":"Vuex",
+     //"vuex":"Vuex",
     "jquery": "jQuery",
     'echarts': 'echarts'
 

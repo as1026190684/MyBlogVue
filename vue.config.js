@@ -15,7 +15,7 @@
         'axios': 'axios',
         'element-ui': 'ElementUI',
         // "lodash":"lodash",
-        "vuex":"Vuex",
+         //"vuex":"Vuex",
         "jquery": "jQuery",
         'echarts': 'echarts'
       }
